@@ -2,7 +2,7 @@ from typing import Optional, ClassVar
 
 from pydantic import BaseModel, Field, validator
 
-class Main_Table(BaseModel):
+class Py_Main(BaseModel):
     UniqueID: Optional[int] = Field(default=None, primary_key=True, nullable=None)
     idlistedu: int = Field()
     idparent: int = Field()
@@ -19,7 +19,7 @@ class Main_Table(BaseModel):
     course7: Optional[int] = Field(default=None)
     table_name: ClassVar[str] = "main.xlsx"
 
-class VUZ(BaseModel):
+class Py_VUZ(BaseModel):
     UniqueID: Optional[int] = Field(default=None, primary_key=True, nullable=None)
     idlistedu: int = Field()
     idparent: int = Field()
@@ -32,14 +32,14 @@ class VUZ(BaseModel):
     id_ministry: int = Field()
     table_name: ClassVar[str] = "Вузы.xlsx"
 
-class Programms(BaseModel):
+class Py_Programms(BaseModel):
     UniqueID: Optional[int] = Field(default=None, primary_key=True, nullable=None)
     progid: int = Field()
     progname: str = Field()
     progcode: int = Field()
     table_name: ClassVar[str] = "Программы.xlsx"
 
-class Trainings(BaseModel):
+class Py_Trainings(BaseModel):
     UniqueID: Optional[int] = Field(default=None, primary_key=True, nullable=None)
     fieldif: str = Field()
     fieldname: str = Field()
@@ -47,20 +47,20 @@ class Trainings(BaseModel):
     progcode: int = Field()
     table_name: ClassVar[str] = "Направления.xlsx"
 
-class Regions(BaseModel):
+class Py_Regions(BaseModel):
     UniqueID: Optional[int] = Field(default=None, primary_key=True, nullable=None)
     id_region: int = Field()
     region: str = Field()
     id_district: int = Field()
     table_name: ClassVar[str] = "Регионы.xlsx"
 
-class Districts(BaseModel):
+class Py_Districts(BaseModel):
     UniqueID: Optional[int] = Field(default=None, primary_key=True, nullable=None)
     id_district: int = Field()
     district: str = Field()
     table_name: ClassVar[str] = "Округа.xlsx"
 
-class Ministry(BaseModel):
+class Py_Ministry(BaseModel):
     UniqueID: Optional[int] = Field(default=None, primary_key=True, nullable=None)
     id_ministry: int = Field()
     ministry: str = Field()
