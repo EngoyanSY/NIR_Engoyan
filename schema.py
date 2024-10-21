@@ -26,7 +26,7 @@ class Py_VUZ(BaseModel):
     fullname: str = Field()
     name: str = Field()
     adress: str = Field()
-    rector: str = Field()
+    rector: Optional[str] = Field(default=None)
     id_region: int = Field()
     id_district: int = Field()
     id_ministry: int = Field()
