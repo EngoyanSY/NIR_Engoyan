@@ -41,7 +41,7 @@ class Py_Programms(BaseModel):
 
 class Py_Trainings(BaseModel):
     UniqueID: Optional[int] = Field(default=None, primary_key=True, nullable=None)
-    fieldif: str = Field()
+    fieldid: str = Field()
     fieldname: str = Field()
     progid: int = Field()
     progcode: int = Field()

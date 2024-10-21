@@ -38,7 +38,7 @@ class BaseTabel(DeclarativeBase):
         # Считывает xlsx файл
         # Переименовывает столбцы и заменяет отсуттвующие данные на None
         # Построчно валидирует данные через Pydantic и вносит их в таблицу
-        data = pd.read_excel(os.path.join("DB", self._schema.table_name))
+        data = pd.read_excel(os.path.join("data", self._schema.table_name))
         data = data.rename(
             columns=dict(zip(data.columns, list(self._schema.model_fields)))
         )
@@ -61,15 +61,16 @@ class MainTable(BaseTabel):
         Column("idlistedu", Integer),
         Column("idparent", Integer),
         Column("progid", Integer),
-        Column("fieldid", String),
+        Column("fieldid", Integer),
         Column("profile", String),
+        Column("formname", String),
         Column("course1", Integer),
-        Column("course2", String),
-        Column("course3", String),
-        Column("course4", String),
-        Column("course5", String),
-        Column("course6", String),
-        Column("course7", String),
+        Column("course2", Integer),
+        Column("course3", Integer),
+        Column("course4", Integer),
+        Column("course5", Integer),
+        Column("course6", Integer),
+        Column("course7", Integer),
     )
 
 class VUZTable(BaseTabel):
@@ -80,13 +81,13 @@ class VUZTable(BaseTabel):
         Column("UniqueID", Integer, primary_key=True),
         Column("idlistedu", Integer),
         Column("idparent", Integer),
-        Column("fullname", Integer),
+        Column("fullname", String),
         Column("name", String),
         Column("adress", String),
-        Column("rector", Integer),
-        Column("id_region", String),
-        Column("id_district", String),
-        Column("id_ministry", String),
+        Column("rector", String),
+        Column("id_region", Integer),
+        Column("id_district", Integer),
+        Column("id_ministry", Integer),
     )
 
 class ProgTable(BaseTabel):
@@ -96,7 +97,7 @@ class ProgTable(BaseTabel):
         metadata_obj,
         Column("UniqueID", Integer, primary_key=True),
         Column("progid", Integer),
-        Column("progname", Integer),
+        Column("progname", String),
         Column("progcode", Integer),
     )
 
@@ -106,8 +107,8 @@ class TrainTable(BaseTabel):
         "trainings",
         metadata_obj,
         Column("UniqueID", Integer, primary_key=True),
-        Column("fieldif", Integer),
-        Column("fieldname", Integer),
+        Column("fieldid", String),
+        Column("fieldname", String),
         Column("progid", Integer),
         Column("progcode", Integer),
     )
@@ -115,11 +116,11 @@ class TrainTable(BaseTabel):
 class RegionTable(BaseTabel):
     _schema = Py_Regions
     __table__ = Table(
-        "trainings",
+        "regions",
         metadata_obj,
         Column("UniqueID", Integer, primary_key=True),
         Column("id_region", Integer),
-        Column("region", Integer),
+        Column("region", String),
         Column("id_district", Integer),
     )
 
@@ -130,16 +131,16 @@ class DistTable(BaseTabel):
         metadata_obj,
         Column("UniqueID", Integer, primary_key=True),
         Column("id_district", Integer),
-        Column("district", Integer),
+        Column("district", String),
     )
 
-class DistTable(BaseTabel):
+class MinistryTable(BaseTabel):
     _schema = Py_Districts
     __table__ = Table(
-        "districts",
+        "ministry",
         metadata_obj,
         Column("UniqueID", Integer, primary_key=True),
         Column("id_ministry", Integer),
-        Column("ministry", Integer),
+        Column("ministry", String),
     )
 
