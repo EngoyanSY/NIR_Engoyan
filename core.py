@@ -1,4 +1,4 @@
-from os.path import isfile, isdir
+from os.path import isdir
 from os import mkdir
 
 from sqlalchemy import create_engine
@@ -14,9 +14,10 @@ from models import (
     MinistryTable,
 )
 
+
 def create_tables():
-    if not(isdir('DB')):
-        mkdir('DB')
+    if not (isdir("DB")):
+        mkdir("DB")
     engine = create_engine("sqlite:///DB/DataBase.sqlite", echo=False)
     metadata_obj.drop_all(engine)
     metadata_obj.create_all(engine)
@@ -39,4 +40,3 @@ def create_tables():
     minis_table.create_table()
 
     print("База данных создана")
-

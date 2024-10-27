@@ -10,10 +10,6 @@ from sqlalchemy import (
     MetaData,
     create_engine,
     insert,
-    select,
-    func,
-    union_all,
-    literal_column,
 )
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import Session
@@ -31,13 +27,11 @@ from schema import (
 
 metadata_obj = MetaData()
 
+
 class BaseTabel(DeclarativeBase):
     _schema = BaseModel
 
     def create_table(self):
-        # Считывает xlsx файл
-        # Переименовывает столбцы и заменяет отсуттвующие данные на None
-        # Построчно валидирует данные через Pydantic и вносит их в таблицу
         data = pd.read_excel(os.path.join("data", self._schema.table_name))
         data = data.rename(
             columns=dict(zip(data.columns, list(self._schema.model_fields)))
@@ -52,6 +46,7 @@ class BaseTabel(DeclarativeBase):
             session.commit()
             session.close()
         print(f"Таблица {self.__table__} создана")
+
 
 class MainTable(BaseTabel):
     _schema = Py_Main
@@ -74,6 +69,7 @@ class MainTable(BaseTabel):
         Column("course7", Integer),
     )
 
+
 class VUZTable(BaseTabel):
     _schema = Py_VUZ
     __table__ = Table(
@@ -91,6 +87,7 @@ class VUZTable(BaseTabel):
         Column("id_ministry", Integer),
     )
 
+
 class ProgTable(BaseTabel):
     _schema = Py_Programms
     __table__ = Table(
@@ -101,6 +98,7 @@ class ProgTable(BaseTabel):
         Column("progname", String),
         Column("progcode", Integer),
     )
+
 
 class TrainTable(BaseTabel):
     _schema = Py_Trainings
@@ -114,6 +112,7 @@ class TrainTable(BaseTabel):
         Column("progcode", Integer),
     )
 
+
 class RegionTable(BaseTabel):
     _schema = Py_Regions
     __table__ = Table(
@@ -125,6 +124,7 @@ class RegionTable(BaseTabel):
         Column("id_district", Integer),
     )
 
+
 class DistTable(BaseTabel):
     _schema = Py_Districts
     __table__ = Table(
@@ -135,6 +135,7 @@ class DistTable(BaseTabel):
         Column("district", String),
     )
 
+
 class MinistryTable(BaseTabel):
     _schema = Py_Ministry
     __table__ = Table(
@@ -144,4 +145,3 @@ class MinistryTable(BaseTabel):
         Column("id_ministry", Integer),
         Column("ministry", String),
     )
-
