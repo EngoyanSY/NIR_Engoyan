@@ -51,6 +51,7 @@ class BaseTabel(DeclarativeBase):
                 session.execute(stmt)
             session.commit()
             session.close()
+        print(f"Таблица {self.__table__} создана")
 
 class MainTable(BaseTabel):
     _schema = Py_Main
@@ -91,7 +92,7 @@ class VUZTable(BaseTabel):
     )
 
 class ProgTable(BaseTabel):
-    _schema = Py_VUZ
+    _schema = Py_Programms
     __table__ = Table(
         "programms",
         metadata_obj,
@@ -135,7 +136,7 @@ class DistTable(BaseTabel):
     )
 
 class MinistryTable(BaseTabel):
-    _schema = Py_Districts
+    _schema = Py_Ministry
     __table__ = Table(
         "ministry",
         metadata_obj,

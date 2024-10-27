@@ -27,10 +27,14 @@ class Py_VUZ(BaseModel):
     name: str = Field()
     adress: str = Field()
     rector: Optional[str] = Field(default=None)
-    id_region: int = Field()
-    id_district: int = Field()
-    id_ministry: int = Field()
+    id_region: Optional[int] = Field()
+    id_district: Optional[int] = Field()
+    id_ministry: Optional[int] = Field()
     table_name: ClassVar[str] = "Вузы.xlsx"
+
+    @validator('id_region', 'id_district', 'id_ministry', pre=True, always=True)
+    def set_default_values(cls, v):
+        return v if v is not None else 9999
 
 class Py_Programms(BaseModel):
     UniqueID: Optional[int] = Field(default=None, primary_key=True, nullable=None)
@@ -45,7 +49,7 @@ class Py_Trainings(BaseModel):
     fieldname: str = Field()
     progid: int = Field()
     progcode: int = Field()
-    table_name: ClassVar[str] = "Направления.xlsx"
+    table_name: ClassVar[str] = "Направления подготовки.xlsx"
 
 class Py_Regions(BaseModel):
     UniqueID: Optional[int] = Field(default=None, primary_key=True, nullable=None)

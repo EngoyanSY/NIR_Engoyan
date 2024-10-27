@@ -4,6 +4,8 @@ __pycache__/
 .vscode/
 logs/*
 logs/
-venv/
-venv/*
+.venv/
+.venv/*
 DB/DataBase.sqlite
+Source/
+Source/*
