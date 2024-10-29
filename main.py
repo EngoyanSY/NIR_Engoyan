@@ -1,5 +1,5 @@
-from core import create_tables
+from models import create_sql_tables
 
 if __name__ == "__main__":
 
-    create_tables()
+    create_sql_tables()

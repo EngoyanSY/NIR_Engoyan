@@ -1,42 +1,21 @@
-from os.path import isdir
-from os import mkdir
-
 from sqlalchemy import create_engine
-
-from models import (
-    metadata_obj,
-    MainTable,
-    VUZTable,
-    ProgTable,
-    TrainTable,
-    RegionTable,
-    DistTable,
-    MinistryTable,
-)
+from sqlalchemy.orm import Session as SQLAlchemySession
 
 
-def create_tables():
-    if not (isdir("DB")):
-        mkdir("DB")
-    engine = create_engine("sqlite:///DB/DataBase.sqlite", echo=False)
-    metadata_obj.drop_all(engine)
-    metadata_obj.create_all(engine)
-    print("База данных инициализирована")
+class Session:
+    _instance = None
+    _engine_string = "sqlite:///DB/DataBase.sqlite"
+    _engine = None
 
-    main_table = MainTable()
-    vuz_table = VUZTable()
-    prog_table = ProgTable()
-    train_table = TrainTable()
-    reg_table = RegionTable()
-    dist_table = DistTable()
-    minis_table = MinistryTable()
+    def __new__(cls, *args, **kwargs):
+        if cls._instance is not None:
+            return cls._instance
+        cls._engine = create_engine(cls._engine_string, echo=False)
+        return super().__new__(cls, *args, **kwargs)
 
-    main_table.create_table()
-    vuz_table.create_table()
-    prog_table.create_table()
-    train_table.create_table()
-    reg_table.create_table()
-    dist_table.create_table()
-    minis_table.create_table()
+    def __enter__(self):
+        self.session = SQLAlchemySession(self._engine)
+        return self.session
 
-    print("База данных создана")
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.session.close()
