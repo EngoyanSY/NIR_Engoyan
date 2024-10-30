@@ -6,6 +6,8 @@ logs/*
 logs/
 .venv/
 .venv/*
+venv/
+venv/*
 DB/DataBase.sqlite
 Source/
 Source/*
