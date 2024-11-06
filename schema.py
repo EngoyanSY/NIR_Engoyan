@@ -71,8 +71,17 @@ class Py_Districts(BaseModel):
     table_name: ClassVar[str] = "Округа.xlsx"
 
 
-class Py_Ministry(BaseModel):
+class Py_Ministries(BaseModel):
     UniqueID: Optional[int] = Field(default=None, primary_key=True, nullable=None)
     id_ministry: int = Field()
     ministry: str = Field()
     table_name: ClassVar[str] = "Министерства.xlsx"
+
+class Py_InfoVUZ(BaseModel):
+    UniqueID: Optional[int] = Field(default=None, primary_key=True, nullable=None)
+    vuzname: str = Field()
+    adress: str = Field()
+    region: str = Field()
+    district: str = Field()
+    ministry: str = Field()
+    table_name: ClassVar[str] ="InfoVUZ.xlsx"
