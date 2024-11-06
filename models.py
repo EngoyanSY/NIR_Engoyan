@@ -11,7 +11,6 @@ from sqlalchemy import (
     create_engine,
     insert,
     select,
-    join,
 )
 from sqlalchemy.orm import DeclarativeBase
 from core import Session
@@ -27,6 +26,7 @@ from schema import (
     Py_Ministries,
     Py_InfoVUZ,
 )
+
 
 def create_sql_tables():
     if not (os.path.isdir("DB")):
@@ -56,6 +56,7 @@ def create_sql_tables():
         minis_table.create_table()
 
         print("База данных создана")
+
 
 metadata_obj = MetaData()
 
@@ -178,6 +179,7 @@ class MinistriesTable(BaseTabel):
         Column("ministry", String),
     )
 
+
 def create_info_vuz():
     vuz = VUZTable().__table__.c
     reg = RegionTable().__table__.c
@@ -185,19 +187,22 @@ def create_info_vuz():
     minis = MinistriesTable().__table__.c
     info = InfoVUZ().__table__
     with Session() as session:
-        results = session.query(
-        vuz.UniqueID,
-        vuz.name,
-        vuz.adress,
-        reg.region,
-        dist.district,
-        minis.ministry
-        ).join(reg, reg.id_region == vuz.id_region) \
-        .join(dist, dist.id_district == vuz.id_district) \
-        .join(minis, minis.id_ministry == vuz.id_ministry) \
-        .all()
-        
-        insert_stmt =info.insert().values(
+        results = (
+            session.query(
+                vuz.UniqueID,
+                vuz.name,
+                vuz.adress,
+                reg.region,
+                dist.district,
+                minis.ministry,
+            )
+            .join(reg, reg.id_region == vuz.id_region)
+            .join(dist, dist.id_district == vuz.id_district)
+            .join(minis, minis.id_ministry == vuz.id_ministry)
+            .all()
+        )
+
+        insert_stmt = info.insert().values(
             [
                 {
                     "UniqueID": row[0],
@@ -215,7 +220,6 @@ def create_info_vuz():
         session.commit()
 
 
-
 class InfoVUZ(BaseTabel):
     _schema = Py_InfoVUZ
     __table__ = Table(
@@ -229,45 +233,47 @@ class InfoVUZ(BaseTabel):
         Column("ministry", String),
     )
 
-def get_vuz_info(filter = True):
+
+def get_vuz_info(filter=True):
     with Session() as sess:
         query = (
-            sess.query(VUZTable.idlistedu, VUZTable.idparent, VUZTable.name)
+            select(VUZTable.idlistedu, VUZTable.idparent, VUZTable.name)
             .join(RegionTable, VUZTable.id_region == RegionTable.id_region)
             .join(DistTable, VUZTable.id_district == DistTable.id_district)
             .join(MinistriesTable, VUZTable.id_ministry == MinistriesTable.id_ministry)
         )
 
         if filter:
-            query = query.filter(VUZTable.idlistedu == VUZTable.idparent)
+            query = query.where(VUZTable.idlistedu == VUZTable.idparent)
         else:
-            query = query.filter(VUZTable.idlistedu != VUZTable.idparent)
+            query = query.where(VUZTable.idlistedu != VUZTable.idparent)
 
         res = sess.execute(query).all()
         return res
+
 
 def get_train_info(vuz, prog, formname):
     with Session() as sess:
-        query = (sess.query(TrainTable.fieldid, 
-                            TrainTable.fieldname,
-                            ProgTable.progname, 
-                            MainTable.formname, 
-                            MainTable.course1, 
-                            MainTable.course2, 
-                            MainTable.course3,
-                            MainTable.course4,
-                            MainTable.course5,
-                            MainTable.course6,
-                            MainTable.course7)
-                        .join(ProgTable, ProgTable.progid == MainTable.progid)
-                        .join(TrainTable, TrainTable.fieldid == MainTable.fieldid)
-                        .filter(MainTable.progid == prog)
-                        .filter(MainTable.idlistedu == vuz[0])
-                        .filter(MainTable.idparent == vuz[1])
-                        .filter(MainTable.formname == formname)
-                 )
+        query = (
+            select(
+                TrainTable.fieldid,
+                TrainTable.fieldname,
+                ProgTable.progname,
+                MainTable.formname,
+                MainTable.course1,
+                MainTable.course2,
+                MainTable.course3,
+                MainTable.course4,
+                MainTable.course5,
+                MainTable.course6,
+                MainTable.course7,
+            )
+            .join(ProgTable, ProgTable.progid == MainTable.progid)
+            .join(TrainTable, TrainTable.fieldid == MainTable.fieldid)
+            .where(MainTable.progid == prog)
+            .where(MainTable.idlistedu == vuz[0])
+            .where(MainTable.idparent == vuz[1])
+            .where(MainTable.formname == formname)
+        )
         res = sess.execute(query).all()
         return res
-
-
-
