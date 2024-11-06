@@ -234,7 +234,10 @@ class InfoVUZ(BaseTabel):
     )
 
 
-def get_vuz_info(filter=True):
+def get_vuz_info(filter = 0):
+    #1 - Главные
+    #2 - Филлиалы
+    #0/ничего - по порядку все
     with Session() as sess:
         query = (
             select(VUZTable.idlistedu, VUZTable.idparent, VUZTable.name)
@@ -243,16 +246,24 @@ def get_vuz_info(filter=True):
             .join(MinistriesTable, VUZTable.id_ministry == MinistriesTable.id_ministry)
         )
 
-        if filter:
+        
+        if filter == 1:
             query = query.where(VUZTable.idlistedu == VUZTable.idparent)
-        else:
+        elif filter == 2:
             query = query.where(VUZTable.idlistedu != VUZTable.idparent)
-
         res = sess.execute(query).all()
-        return res
+        return len(res)
 
 
-def get_train_info(vuz, prog, formname):
+def get_train_info(vuz = False, prog = False, formname = False):
+    #vuz - list(idlistedu, idparent)
+    #prog - 62 - б, 65 - с, 68 - м
+    #form - 1 - очная, 2 - заочная, 3 - очно-заочная
+    form = {
+        1 : "очная", 
+        2 : "заочная", 
+        3 : "очно-заочная", 
+    }
     with Session() as sess:
         query = (
             select(
@@ -270,10 +281,16 @@ def get_train_info(vuz, prog, formname):
             )
             .join(ProgTable, ProgTable.progid == MainTable.progid)
             .join(TrainTable, TrainTable.fieldid == MainTable.fieldid)
-            .where(MainTable.progid == prog)
-            .where(MainTable.idlistedu == vuz[0])
-            .where(MainTable.idparent == vuz[1])
-            .where(MainTable.formname == formname)
         )
+        if prog:
+            query = query.where(MainTable.progid == prog)
+        if vuz:
+            query = (query
+                     .where(MainTable.idlistedu == vuz[0])
+                     .where(MainTable.idparent == vuz[1])
+            )
+        if formname:
+            query = query.where(MainTable.formname == form.get(formname))
+            
         res = sess.execute(query).all()
         return res
