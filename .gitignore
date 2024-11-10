@@ -4,5 +4,6 @@ venv/
 venv/*
 database/DB/DataBase.sqlite
 database/__pycache__/
+api/__pycache__/
 www/node_modules
 www/package-lock.json
