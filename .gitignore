@@ -11,3 +11,5 @@ venv/*
 DB/DataBase.sqlite
 Source/
 Source/*
+www/node_modules
+www/package-lock.json

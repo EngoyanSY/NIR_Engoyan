@@ -77,7 +77,6 @@ class Py_Ministries(BaseModel):
     ministry: str = Field()
     table_name: ClassVar[str] = "Министерства.xlsx"
 
-
 class Py_InfoVUZ(BaseModel):
     UniqueID: Optional[int] = Field(default=None, primary_key=True, nullable=None)
     vuzname: str = Field()
@@ -86,3 +85,28 @@ class Py_InfoVUZ(BaseModel):
     district: str = Field()
     ministry: str = Field()
     table_name: ClassVar[str] = "InfoVUZ.xlsx"
+
+
+class Py_InfoVUZjson(BaseModel):
+     UniqueID: Optional[int] = Field(default=None, primary_key=True, nullable=None)
+     idlistedu: int = Field()
+     idparent: int = Field()
+     name: str = Field()
+     adress: str = Field()
+     region: str = Field()
+     district: str = Field()
+     ministry: str = Field()
+
+class Py_InfoTrainjson(BaseModel):
+    UniqueID: Optional[int] = Field(default=None, primary_key=True, nullable=None)
+    fieldid: str = Field()
+    fieldname: str = Field()
+    progname: str = Field()
+    formname: str = Field()
+    course1: Optional[int] = Field(default=None)
+    course2: Optional[int] = Field(default=None)
+    course3: Optional[int] = Field(default=None)
+    course4: Optional[int] = Field(default=None)
+    course5: Optional[int] = Field(default=None)
+    course6: Optional[int] = Field(default=None)
+    course7: Optional[int] = Field(default=None)

@@ -11,6 +11,7 @@ from sqlalchemy import (
     create_engine,
     insert,
     select,
+    func,
 )
 from sqlalchemy.orm import DeclarativeBase
 from core import Session
@@ -25,6 +26,8 @@ from schema import (
     Py_Districts,
     Py_Ministries,
     Py_InfoVUZ,
+    Py_InfoVUZjson,
+    Py_InfoTrainjson,
 )
 
 
@@ -44,7 +47,7 @@ def create_sql_tables():
         reg_table = RegionTable()
         dist_table = DistTable()
         minis_table = MinistriesTable()
-        info_table = InfoVUZ()
+        info_table = VUZInfo()
 
         info_table.create_table()
         main_table.create_table()
@@ -179,13 +182,25 @@ class MinistriesTable(BaseTabel):
         Column("ministry", String),
     )
 
+class VUZInfo(BaseTabel):
+    _schema = Py_InfoVUZ
+    __table__ = Table(
+        "vuz_info",
+        metadata_obj,
+        Column("UniqueID", Integer, primary_key=True),
+        Column("vuzname", String),
+        Column("adress", String),
+        Column("region", String),
+        Column("district", String),
+        Column("ministry", String),
+    )
 
 def create_info_vuz():
     vuz = VUZTable().__table__.c
     reg = RegionTable().__table__.c
     dist = DistTable().__table__.c
     minis = MinistriesTable().__table__.c
-    info = InfoVUZ().__table__
+    info = VUZInfo().__table__
     with Session() as session:
         results = (
             select(
@@ -219,28 +234,22 @@ def create_info_vuz():
         session.execute(insert_stmt)
         session.commit()
 
-
-class InfoVUZ(BaseTabel):
-    _schema = Py_InfoVUZ
-    __table__ = Table(
-        "vuz_info",
-        metadata_obj,
-        Column("UniqueID", Integer, primary_key=True),
-        Column("vuzname", String),
-        Column("adress", String),
-        Column("region", String),
-        Column("district", String),
-        Column("ministry", String),
-    )
-
-
 def get_vuz_info(filter = 0):
     #1 - Главные
     #2 - Филлиалы
     #0/ничего - по порядку все
     with Session() as sess:
+        query = select(VUZInfo)
         query = (
-            select(VUZTable.idlistedu, VUZTable.idparent, VUZTable.name)
+            select(
+                   func.row_number().over(order_by=VUZTable.idlistedu).label('UniqueID'),
+                   VUZTable.idlistedu, 
+                   VUZTable.idparent, 
+                   VUZTable.name,
+                   VUZTable.adress,
+                   RegionTable.region,
+                   DistTable.district,
+                   MinistriesTable.ministry)
             .join(RegionTable, VUZTable.id_region == RegionTable.id_region)
             .join(DistTable, VUZTable.id_district == DistTable.id_district)
             .join(MinistriesTable, VUZTable.id_ministry == MinistriesTable.id_ministry)
@@ -251,8 +260,23 @@ def get_vuz_info(filter = 0):
             query = query.where(VUZTable.idlistedu == VUZTable.idparent)
         elif filter == 2:
             query = query.where(VUZTable.idlistedu != VUZTable.idparent)
-        res = sess.execute(query).all()
-        return len(res)
+        res = sess.execute(query)
+        result_orm = res.all()  # Получаем все результаты
+
+        # Теперь result_orm - это список кортежей
+        result_dto = tuple(
+            Py_InfoVUZjson(
+                UniqueID=row.UniqueID,  # уникальный идентификатор из SQL
+                idlistedu=row.idlistedu,
+                idparent=row.idparent,
+                name=row.name,
+                adress=row.adress,
+                region=row.region,
+                district=row.district,
+                ministry=row.ministry
+            ).model_dump_json() for row in result_orm
+        )
+        return result_dto
 
 
 def get_train_info(vuz = False, prog = False, formname = False):
@@ -267,6 +291,7 @@ def get_train_info(vuz = False, prog = False, formname = False):
     with Session() as sess:
         query = (
             select(
+                func.row_number().over(order_by=MainTable.fieldid).label('UniqueID'),
                 TrainTable.fieldid,
                 TrainTable.fieldname,
                 ProgTable.progname,
@@ -292,5 +317,22 @@ def get_train_info(vuz = False, prog = False, formname = False):
         if formname:
             query = query.where(MainTable.formname == form.get(formname))
             
-        res = sess.execute(query).all()
-        return res
+        res = sess.execute(query)
+        result_orm = res.all()
+        result_dto = tuple(
+            Py_InfoTrainjson(
+                UniqueID=row.UniqueID,  # уникальный идентификатор из SQL
+                fieldid=row.fieldid,
+                fieldname=row.fieldname,
+                progname=row.progname,
+                formname=row.formname,
+                course1=row.course1,
+                course2=row.course2,
+                course3=row.course3,
+                course4=row.course4,
+                course5=row.course5,
+                course6=row.course6,
+                course7=row.course7,
+            ).model_dump_json() for row in result_orm
+        )
+        return result_dto
