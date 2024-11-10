@@ -188,7 +188,7 @@ def create_info_vuz():
     info = InfoVUZ().__table__
     with Session() as session:
         results = (
-            session.query(
+            select(
                 vuz.UniqueID,
                 vuz.name,
                 vuz.adress,
