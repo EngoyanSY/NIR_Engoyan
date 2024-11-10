@@ -73,11 +73,10 @@ class BaseTabel(DeclarativeBase):
             columns=dict(zip(data.columns, list(self._schema.model_fields)))
         )
         data.replace({np.nan: None}, inplace=True)
-        engine = create_engine("sqlite:///DB/DataBase.sqlite", echo=False)
-        with Session(engine) as session:
+        with Session() as session:
             for r in range(data.shape[0]):
                 table_model = self._schema.model_validate(data.iloc[r].to_dict())
-                stmt = insert(self.__table__).values(table_model.dict())
+                stmt = insert(self.__table__).values(table_model.model_dump())
                 session.execute(stmt)
             session.commit()
             session.close()
@@ -182,6 +181,7 @@ class MinistriesTable(BaseTabel):
         Column("ministry", String),
     )
 
+
 class VUZInfo(BaseTabel):
     _schema = Py_InfoVUZ
     __table__ = Table(
@@ -194,6 +194,7 @@ class VUZInfo(BaseTabel):
         Column("district", String),
         Column("ministry", String),
     )
+
 
 def create_info_vuz():
     vuz = VUZTable().__table__.c
@@ -234,28 +235,29 @@ def create_info_vuz():
         session.execute(insert_stmt)
         session.commit()
 
-def get_vuz_info(filter = 0):
-    #1 - Главные
-    #2 - Филлиалы
-    #0/ничего - по порядку все
+
+def get_vuz_info(filter=0):
+    # 1 - Главные
+    # 2 - Филлиалы
+    # 0/ничего - по порядку все
     with Session() as sess:
         query = select(VUZInfo)
         query = (
             select(
-                   func.row_number().over(order_by=VUZTable.idlistedu).label('UniqueID'),
-                   VUZTable.idlistedu, 
-                   VUZTable.idparent, 
-                   VUZTable.name,
-                   VUZTable.adress,
-                   RegionTable.region,
-                   DistTable.district,
-                   MinistriesTable.ministry)
+                func.row_number().over(order_by=VUZTable.idlistedu).label("UniqueID"),
+                VUZTable.idlistedu,
+                VUZTable.idparent,
+                VUZTable.name,
+                VUZTable.adress,
+                RegionTable.region,
+                DistTable.district,
+                MinistriesTable.ministry,
+            )
             .join(RegionTable, VUZTable.id_region == RegionTable.id_region)
             .join(DistTable, VUZTable.id_district == DistTable.id_district)
             .join(MinistriesTable, VUZTable.id_ministry == MinistriesTable.id_ministry)
         )
 
-        
         if filter == 1:
             query = query.where(VUZTable.idlistedu == VUZTable.idparent)
         elif filter == 2:
@@ -273,25 +275,26 @@ def get_vuz_info(filter = 0):
                 adress=row.adress,
                 region=row.region,
                 district=row.district,
-                ministry=row.ministry
-            ).model_dump_json() for row in result_orm
+                ministry=row.ministry,
+            ).model_dump_json()
+            for row in result_orm
         )
         return result_dto
 
 
-def get_train_info(vuz = False, prog = False, formname = False):
-    #vuz - list(idlistedu, idparent)
-    #prog - 62 - б, 65 - с, 68 - м
-    #form - 1 - очная, 2 - заочная, 3 - очно-заочная
+def get_train_info(vuz=False, prog=False, formname=False):
+    # vuz - list(idlistedu, idparent)
+    # prog - 62 - б, 65 - с, 68 - м
+    # form - 1 - очная, 2 - заочная, 3 - очно-заочная
     form = {
-        1 : "очная", 
-        2 : "заочная", 
-        3 : "очно-заочная", 
+        1: "очная",
+        2: "заочная",
+        3: "очно-заочная",
     }
     with Session() as sess:
         query = (
             select(
-                func.row_number().over(order_by=MainTable.fieldid).label('UniqueID'),
+                func.row_number().over(order_by=MainTable.fieldid).label("UniqueID"),
                 TrainTable.fieldid,
                 TrainTable.fieldname,
                 ProgTable.progname,
@@ -310,13 +313,12 @@ def get_train_info(vuz = False, prog = False, formname = False):
         if prog:
             query = query.where(MainTable.progid == prog)
         if vuz:
-            query = (query
-                     .where(MainTable.idlistedu == vuz[0])
-                     .where(MainTable.idparent == vuz[1])
+            query = query.where(MainTable.idlistedu == vuz[0]).where(
+                MainTable.idparent == vuz[1]
             )
         if formname:
             query = query.where(MainTable.formname == form.get(formname))
-            
+
         res = sess.execute(query)
         result_orm = res.all()
         result_dto = tuple(
@@ -333,6 +335,7 @@ def get_train_info(vuz = False, prog = False, formname = False):
                 course5=row.course5,
                 course6=row.course6,
                 course7=row.course7,
-            ).model_dump_json() for row in result_orm
+            ).model_dump_json()
+            for row in result_orm
         )
         return result_dto
