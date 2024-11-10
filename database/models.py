@@ -323,7 +323,7 @@ def get_train_info(vuz=False, prog=False, formname=False):
         result_orm = res.all()
         result_dto = tuple(
             Py_InfoTrainjson(
-                UniqueID=row.UniqueID,  # уникальный идентификатор из SQL
+                UniqueID=row.UniqueID,
                 fieldid=row.fieldid,
                 fieldname=row.fieldname,
                 progname=row.progname,

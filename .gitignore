@@ -1,15 +1,8 @@
-__pycache__/
-.idea/
-.idea/*
-.vscode/
-logs/*
-logs/
 .venv/
 .venv/*
 venv/
 venv/*
-DB/DataBase.sqlite
-Source/
-Source/*
+database/DB/DataBase.sqlite
+database/__pycache__/
 www/node_modules
 www/package-lock.json

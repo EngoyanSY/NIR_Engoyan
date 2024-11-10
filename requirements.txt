@@ -8,3 +8,5 @@ pydantic==2.9.2
 pydantic-settings==2.5.2
 SQLAlchemy==2.0.35
 sqlmodel==0.0.22
+
+Flask==3.0.3

@@ -1,6 +1,10 @@
+import os
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session as SQLAlchemySession
 
+current_path = os.path.join(os.getcwd(), 'database')
+os.chdir(current_path)
 
 class Session:
     _instance = None
