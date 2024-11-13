@@ -66,13 +66,13 @@ class Main(models.Model):
     fieldid = models.ForeignKey(Training, on_delete=models.CASCADE, db_column='fieldid')
     profile = models.CharField(max_length=100)
     formname = models.CharField(max_length=7)
-    course1 = models.IntegerField()
-    course2 = models.IntegerField()
-    course3 = models.IntegerField()
-    course4 = models.IntegerField()
-    course5 = models.IntegerField()
-    course6 = models.IntegerField()
-    course7 = models.IntegerField()
+    course1 = models.IntegerField(null=True)
+    course2 = models.IntegerField(null=True)
+    course3 = models.IntegerField(null=True)
+    course4 = models.IntegerField(null=True)
+    course5 = models.IntegerField(null=True)
+    course6 = models.IntegerField(null=True)
+    course7 = models.IntegerField(null=True)
 
     class Meta:
         db_table = 'Main'

@@ -339,3 +339,7 @@ def get_train_info(vuz=False, prog=False, formname=False):
             for row in result_orm
         )
         return result_dto
+
+res = get_train_info([2,2],65)
+for row in res:
+    print(row)
