@@ -36,8 +36,8 @@
                 </select>
             </div>
              <div class="form-group col-md-4">
-                <label for="educationLevelFilter">Форма обучения</label>
-                <select id="educationLevelFilter" class="form-control">
+                <label for="studyFormFilter">Форма обучения</label>
+                <select id="studyFormFilter" class="form-control">
                     <option value="">Все</option>
                     {% for form in formname %}
                     <option value="{{ form.formname }}">{{ form.formname }}</option>
@@ -109,9 +109,9 @@
                 const studyForm = cells[5].textContent.toLowerCase();
 
                 // Проверка условий фильтрации
-                const programMatch = programFilter === '' || program.includes(programFilter);
-                const educationLevelMatch = educationLevelFilter === '' || educationLevel.includes(educationLevelFilter);
-                const studyFormMatch = studyFormFilter === '' || studyForm.includes(studyFormFilter);
+                const programMatch = programFilter === '' || program === programFilter;
+                const educationLevelMatch = educationLevelFilter === '' || educationLevel === educationLevelFilter;
+                const studyFormMatch = studyFormFilter === '' || studyForm === studyFormFilter;
 
                 // Установка видимости строки
                 rows[i].style.display = programMatch && educationLevelMatch && studyFormMatch ? 'table-row' : 'none';
