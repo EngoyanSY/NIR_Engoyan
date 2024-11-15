@@ -1,7 +1,6 @@
 import pandas as pd
 import os
 from django.core.management.base import BaseCommand
-from django.db import transaction
 
 from ...models import (
 Main,
@@ -98,8 +97,9 @@ class Command(BaseCommand):
 
                 # Подготовка данных для Main
                 main_data = row.dropna().to_dict()
-                main_data['id_listedu'] = vuz_instance  # Ссылка на значение из Vuz
-                main_data['id_parent'] = vuz_instance  # Ссылка на значение из Vuz
+                main_data['id_vuz'] = vuz_instance
+                del main_data['id_listedu']
+                del main_data['id_parent']
                 main_data['progid'] = Prog
                 main_data['fieldid'] = Training_instance
 

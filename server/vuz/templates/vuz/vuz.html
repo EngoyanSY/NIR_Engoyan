@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NIR</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        /* Устанавливаем фиксированную высоту контейнера и включаем прокрутку */
+        .table-container {
+            height: 80vh;
+            overflow-y: scroll/* Включаем вертикальную прокрутку */
+        }
+
+        /* Фиксируем заголовок таблицы здесь */
+        thead th {
+            position: sticky;
+            top: 0px;
+            background: #212529;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5" style="box-shadow: 15px 15px 50px grey">
+    <h2>Данные о ВУЗах</h2>
+    <div class="table-container table-responsive">
+        <table class="table table-bordered">
+            <thead class="table-dark">
+                <tr>
+                    <th>Номер</th>
+                    <th>Название ВУЗа</th>
+                    <th>Адрес</th>
+                    <th>Округ</th>
+                    <th>Регион</th>
+                    <th>Министерство</th>
+                </tr>
+            </thead>
+            <tbody class="table-hover">
+                {% for item in vuz %}
+                <tr>
+                    <td>{{ item.id }}</td>
+                    <td>{{ item.name}}</td>
+                    <td>{{ item.address }}</td>
+                    <td>{{ item.id_district.district }}</td>
+                    <td>{{ item.id_region.region }}</td>
+                    <td>{{ item.id_ministry.ministry }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center">Данные отсутствуют</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

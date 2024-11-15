@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Таблица Main и Training</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+    <style>
+        .table-responsive {
+            overflow-y: scroll;
+            height: 80vh;
+            user-select: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4" style="box-shadow: 15px 15px 50px grey">
+        <h2>Данные о программах</h2>
+        <div class="table-responsive">
+        <table class="table table-bordered table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>Номер</th>
+                    <th>Название программы</th>
+                    <th>Код программы</th>
+                    <th>Уровень образования</th>
+                    <th>Профиль</th>
+                    <th>Форма обучения</th>
+                    <th>Курс 1</th>
+                    <th>Курс 2</th>
+                    <th>Курс 3</th>
+                    <th>Курс 4</th>
+                    <th>Курс 5</th>
+                    <th>Курс 6</th>
+                    <th>Курс 7</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in main_obj %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ item.fieldid.fieldname }}</td>
+                    <td>{{ item.fieldid.fieldid }}</td>
+                    <td>{{ item.progid.progname }}</td>
+                    <td>{{ item.profile }}</td>
+                    <td>{{ item.formname }}</td>
+                    <td>{% if item.course1 %}{{ item.course1 }}{% endif %}</td>
+                    <td>{% if item.course2 %}{{ item.course2 }}{% endif %}</td>
+                    <td>{% if item.course3 %}{{ item.course3 }}{% endif %}</td>
+                    <td>{% if item.course4 %}{{ item.course4 }}{% endif %}</td>
+                    <td>{% if item.course5 %}{{ item.course5 }}{% endif %}</td>
+                    <td>{% if item.course6 %}{{ item.course6 }}{% endif %}</td>
+                    <td>{% if item.course7 %}{{ item.course7 }}{% endif %}</td>
+
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="13" class="text-center">Данные отсутствуют</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

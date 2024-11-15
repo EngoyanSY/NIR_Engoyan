@@ -43,7 +43,6 @@ class Regions(models.Model):
 
 
 class Vuz(models.Model):
-    id = models.AutoField(primary_key=True)
     id_listedu = models.IntegerField()
     id_parent = models.IntegerField()
     fullname = models.CharField(max_length=300)
@@ -56,12 +55,11 @@ class Vuz(models.Model):
 
     class Meta:
         db_table = 'Vuz'
-
+        unique_together = (('id_listedu', 'id_parent'),)
 
 class Main(models.Model):
     id = models.AutoField(primary_key=True)
-    id_listedu = models.ForeignKey(Vuz, on_delete=models.CASCADE, related_name='listedu_main', db_column='id_listedu')
-    id_parent = models.ForeignKey(Vuz, on_delete=models.CASCADE, related_name='parent_main', db_column='id_parent')
+    id_vuz = models.ForeignKey(Vuz, on_delete=models.CASCADE, default=0, db_column='id_vuz')
     progid = models.ForeignKey(Program, on_delete=models.CASCADE, db_column='progid')
     fieldid = models.ForeignKey(Training, on_delete=models.CASCADE, db_column='fieldid')
     profile = models.CharField(max_length=100)
