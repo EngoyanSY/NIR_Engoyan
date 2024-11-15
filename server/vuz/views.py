@@ -10,15 +10,8 @@ from .models import (
     Ministries,
 )
 
-def vuz(request, filter):
-    if (filter == 0):
-        vuz = Vuz.objects.all()
-    elif (filter == 1):
-        vuz = Vuz.objects.filter(id_parent = F('id_listedu'))
-    elif (filter == 2):
-        vuz = Vuz.objects.exclude(id_parent = F('id_listedu'))
-
-    vuz = vuz.select_related('id_region', 'id_district', 'id_ministry')
+def vuz(request):
+    vuz = Vuz.objects.all().select_related('id_region', 'id_district', 'id_ministry')
     return render(request, 'vuz/vuz.html', {'vuz': vuz})
 
 def prog(request, vuz_id):
@@ -26,9 +19,9 @@ def prog(request, vuz_id):
     vuzid = vuz.id
 
     main_obj = Main.objects.filter(id_vuz = vuzid).select_related('fieldid', 'progid', 'id_vuz')
-    fieldname = main_obj.values('fieldid__fieldname').distinct()
-    formname = main_obj.values('formname').distinct()
-    prog = main_obj.values('progid__progname').distinct()
+    fieldname = main_obj.values('fieldid__fieldname').distinct().order_by('fieldid__fieldname')
+    formname = main_obj.values('formname').distinct().order_by('formname')
+    prog = main_obj.values('progid__progname').distinct().order_by('progid__progname')
     context = {'main_obj': main_obj,
                'fieldname': fieldname,
                'formname': formname,

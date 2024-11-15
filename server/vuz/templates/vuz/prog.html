@@ -6,16 +6,32 @@
     <title>Таблица Main и Training</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
     <style>
-        .table-responsive {
-            overflow-y: scroll;
+        .table-container {
             height: 80vh;
+            overflow-y: scroll;
             user-select: none;
+        }
+
+        /* Фиксируем заголовок таблицы здесь */
+        thead th {
+            position: sticky;
+            top: 0px;
+            background: #212529;
+            z-index: 10;
+        }
+
+        tbody tr {
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
     <div class="container mt-4" style="box-shadow: 15px 15px 50px grey">
-        <h2>Данные о программах</h2>
+        {% if main_obj and main_obj|length > 0 %}
+            <h2>{{ main_obj.0.id_vuz.name }}</h2>
+        {% else %}
+            <h2>Нет данных</h2>
+        {% endif %}
         <div class="form-row">
             <div class="form-group col-md-4">
                 <label for="programFilter">Название программы</label>
@@ -45,7 +61,7 @@
                 </select>
             </div>
         </div>
-        <div class="table-responsive">
+        <div class="table table-container table-responsive table-hover">
         <table class="table table-bordered">
             <thead class="table-dark">
                 <tr>
