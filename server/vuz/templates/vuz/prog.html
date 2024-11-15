@@ -16,8 +16,37 @@
 <body>
     <div class="container mt-4" style="box-shadow: 15px 15px 50px grey">
         <h2>Данные о программах</h2>
+        <div class="form-row">
+            <div class="form-group col-md-4">
+                <label for="programFilter">Название программы</label>
+                <select id="programFilter" class="form-control">
+                    <option value="">Все</option>
+                    {% for name in fieldname %}
+                    <option value="{{ name.fieldid__fieldname }}">{{ name.fieldid__fieldname }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group col-md-4">
+                <label for="educationLevelFilter">Уровень образования</label>
+                <select id="educationLevelFilter" class="form-control">
+                    <option value="">Все</option>
+                    {% for pr in prog %}
+                    <option value="{{ pr.progid__progname }}">{{ pr.progid__progname}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+             <div class="form-group col-md-4">
+                <label for="educationLevelFilter">Форма обучения</label>
+                <select id="educationLevelFilter" class="form-control">
+                    <option value="">Все</option>
+                    {% for form in formname %}
+                    <option value="{{ form.formname }}">{{ form.formname }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
         <div class="table-responsive">
-        <table class="table table-bordered table-hover">
+        <table class="table table-bordered">
             <thead class="table-dark">
                 <tr>
                     <th>Номер</th>
@@ -35,7 +64,7 @@
                     <th>Курс 7</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="programTableBody">
                 {% for item in main_obj %}
                 <tr>
                     <td>{{ forloop.counter }}</td>
@@ -63,6 +92,37 @@
         </div>
     </div>
 
+
+     <script>
+        function filterTable() {
+            const programFilter = document.getElementById('programFilter').value.toLowerCase();
+            const educationLevelFilter = document.getElementById('educationLevelFilter').value.toLowerCase();
+            const studyFormFilter = document.getElementById('studyFormFilter').value.toLowerCase();
+
+            const tableBody = document.getElementById('programTableBody');
+            const rows = tableBody.getElementsByTagName('tr');
+
+            for (let i = 0; i < rows.length; i++) {
+                const cells = rows[i].getElementsByTagName('td');
+                const program = cells[1].textContent.toLowerCase();
+                const educationLevel = cells[3].textContent.toLowerCase();
+                const studyForm = cells[5].textContent.toLowerCase();
+
+                // Проверка условий фильтрации
+                const programMatch = programFilter === '' || program.includes(programFilter);
+                const educationLevelMatch = educationLevelFilter === '' || educationLevel.includes(educationLevelFilter);
+                const studyFormMatch = studyFormFilter === '' || studyForm.includes(studyFormFilter);
+
+                // Установка видимости строки
+                rows[i].style.display = programMatch && educationLevelMatch && studyFormMatch ? 'table-row' : 'none';
+            }
+        }
+
+        // Обработчики событий для фильтров
+        document.getElementById('programFilter').addEventListener('change', filterTable);
+        document.getElementById('educationLevelFilter').addEventListener('change', filterTable);
+        document.getElementById('studyFormFilter').addEventListener('change', filterTable);
+    </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
 </body>

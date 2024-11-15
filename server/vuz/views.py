@@ -24,5 +24,14 @@ def vuz(request, filter):
 def prog(request, vuz_id):
     vuz = Vuz.objects.get(pk=vuz_id)
     vuzid = vuz.id
+
     main_obj = Main.objects.filter(id_vuz = vuzid).select_related('fieldid', 'progid', 'id_vuz')
-    return render(request,'vuz/prog.html', {"main_obj":main_obj})
+    fieldname = main_obj.values('fieldid__fieldname').distinct()
+    formname = main_obj.values('formname').distinct()
+    prog = main_obj.values('progid__progname').distinct()
+    context = {'main_obj': main_obj,
+               'fieldname': fieldname,
+               'formname': formname,
+               'prog': prog,
+               }
+    return render(request,'vuz/prog.html', context)
