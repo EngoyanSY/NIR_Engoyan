@@ -23,6 +23,12 @@
         tbody tr {
             cursor: pointer;
         }
+
+        #back {
+            position: fixed;
+            top: 10px;
+            left: 70%;
+        }
     </style>
 </head>
 <body>
@@ -60,6 +66,9 @@
                     {% endfor %}
                 </select>
             </div>
+        </div>
+        <div class="container mt-4" id="back">
+            <button class="btn btn-primary" onclick="goBack()">Назад</button>
         </div>
         <div class="table table-container table-responsive table-hover">
         <table class="table table-bordered">
@@ -138,6 +147,10 @@
         document.getElementById('programFilter').addEventListener('change', filterTable);
         document.getElementById('educationLevelFilter').addEventListener('change', filterTable);
         document.getElementById('studyFormFilter').addEventListener('change', filterTable);
+
+        function goBack() {
+            window.history.back(); // Возвращает на предыдущую страницу
+        }
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>

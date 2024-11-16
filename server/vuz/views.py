@@ -12,7 +12,16 @@ from .models import (
 
 def vuz(request):
     vuz = Vuz.objects.all().select_related('id_region', 'id_district', 'id_ministry')
-    return render(request, 'vuz/vuz.html', {'vuz': vuz})
+    regions = vuz.values('id_region__region').distinct().order_by('id_region__region')
+    districts = vuz.values('id_district__district').distinct().order_by('id_district__district')
+    ministry = vuz.values('id_ministry__ministry').distinct().order_by('id_ministry__ministry')
+    context = {
+        'regions': regions,
+        'districts': districts,
+        'ministry': ministry,
+        'vuz': vuz,
+    }
+    return render(request, 'vuz/vuz.html', context)
 
 def prog(request, vuz_id):
     vuz = Vuz.objects.get(pk=vuz_id)

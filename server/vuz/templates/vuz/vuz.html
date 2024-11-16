@@ -31,15 +31,42 @@
     </style>
 </head>
 <body>
-    <div class="container mt-5" style="box-shadow: 15px 15px 50px grey">
+    <div class="container mt-4" style="box-shadow: 15px 15px 50px grey">
     <h2>Данные о ВУЗах</h2>
     <div class="form-row">
-            <div class="form-group col-md-4">
+            <div class="form-group col-md-3">
                 <label for="vuzType">Тип ВУЗа</label>
                 <select id="vuzType" class="form-control">
                     <option value="">Все</option>
                     <option value="Головные">Головные</option>
                     <option value="Филиалы">Филиалы</option>
+                </select>
+            </div>
+            <div class="form-group col-md-3">
+                <label for="districtFilter">Округ</label>
+                <select id="districtFilter" class="form-control">
+                    <option value="">Все</option>
+                    {% for district in districts %}
+                    <option value="{{ district.id_district__district }}">{{ district.id_district__district}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group col-md-3">
+                <label for="regionFilter">Регион</label>
+                <select id="regionFilter" class="form-control">
+                    <option value="">Все</option>
+                    {% for region in regions %}
+                    <option value="{{ region.id_region__region }}">{{ region.id_region__region}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group col-md-3">
+                <label for="ministryFilter">Министерства</label>
+                <select id="ministryFilter" class="form-control">
+                    <option value="">Все</option>
+                    {% for minist in ministry %}
+                    <option value="{{ minist.id_ministry__ministry }}">{{ minist.id_ministry__ministry}}</option>
+                    {% endfor %}
                 </select>
             </div>
     </div>
@@ -48,9 +75,9 @@
             <thead class="table-dark">
                 <tr>
                     <th>Номер</th>
-                    <th class="hidden-column">Номер</th>
-                    <th class="hidden-column">Номер</th>
-                    <th>Название ВУЗа</th>
+                    <th class="hidden-column">id_listedu</th>
+                    <th class="hidden-column">id_parent</th>
+                    <th>Имя Вуза</th>
                     <th>Адрес</th>
                     <th>Округ</th>
                     <th>Регион</th>
@@ -85,7 +112,7 @@
         const programFilter = document.getElementById('vuzType').value;
         const tableBody = document.getElementById('vuzTableBody'); // предполагается, что это тело вашей таблицы
         const rows = tableBody.getElementsByTagName('tr');
-
+        console.log(programFilter)
         for (let i = 0; i < rows.length; i++) {
             const cells = rows[i].getElementsByTagName('td');
             if (cells.length > 0) {
@@ -106,9 +133,35 @@
             }
         }
     }
+    </script>
+    <script>
+    function filterTable() {
+        const districtFilter = document.getElementById('districtFilter').value.toLowerCase();
+        const regionFilter = document.getElementById('regionFilter').value.toLowerCase();
+        const ministryFilter = document.getElementById('ministryFilter').value.toLowerCase();
+        const tableBody = document.getElementById('vuzTableBody');
+        const rows = tableBody.getElementsByTagName('tr');
 
+        for (let i = 0; i < rows.length; i++) {
+            const cells = rows[i].getElementsByTagName('td');
+            const district = cells[5].textContent.toLowerCase();
+            const region = cells[6].textContent.toLowerCase();
+            const ministry = cells[7].textContent.toLowerCase();
+
+            // Проверка условий фильтрации
+            const districtMatch = districtFilter === '' || district === districtFilter;
+            const regionMatch = regionFilter === '' || region === regionFilter;
+            const ministryMatch = ministryFilter === '' || ministry === ministryFilter;
+            // Установка видимости строки
+            rows[i].style.display = districtMatch && regionMatch && ministryMatch ? 'table-row' : 'none';
+        }
+    }
     // Обработчик события для фильтра
     document.getElementById('vuzType').addEventListener('change', filterVuzTable);
+    document.getElementById('districtFilter').addEventListener('change', filterTable);
+    document.getElementById('regionFilter').addEventListener('change', filterTable);
+    document.getElementById('ministryFilter').addEventListener('change', filterTable);
+
     </script>
     <script>
     // JavaScript для обработки кликов по строкам таблицы
