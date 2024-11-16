@@ -29,7 +29,7 @@ def prog(request, vuz_id):
 
     main_obj = Main.objects.filter(id_vuz = vuzid).select_related('fieldid', 'progid', 'id_vuz')
     fieldname = main_obj.values('fieldid__fieldname').distinct().order_by('fieldid__fieldname')
-    formname = main_obj.values('formname').distinct().order_by('formname')
+    formname = main_obj.values('formname').distinct().order_by('-formname')
     prog = main_obj.values('progid__progname').distinct().order_by('progid__progname')
     context = {'main_obj': main_obj,
                'fieldname': fieldname,
