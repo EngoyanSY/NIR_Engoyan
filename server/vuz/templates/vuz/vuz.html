@@ -8,7 +8,7 @@
     <style>
         /* Устанавливаем фиксированную высоту контейнера и включаем прокрутку */
         .table-container {
-            height: 80vh;
+            height: 75vh;
             overflow-y: scroll;
             user-select: none;
         }
@@ -110,7 +110,7 @@
     <script>
     function filterVuzTable() {
         const programFilter = document.getElementById('vuzType').value;
-        const tableBody = document.getElementById('vuzTableBody'); // предполагается, что это тело вашей таблицы
+        const tableBody = document.getElementById('vuzTableBody');
         const rows = tableBody.getElementsByTagName('tr');
         console.log(programFilter)
         for (let i = 0; i < rows.length; i++) {
@@ -169,7 +169,7 @@
         const rows = document.querySelectorAll('#vuzTable tbody tr');
 
         rows.forEach(row => {
-            row.addEventListener('click', function() {
+            row.addEventListener('dblclick', function() {
                 const vuzId = this.getAttribute('data-id'); // Получаем значение из атрибута data-id
                 window.location.href = `prog/${vuzId}/`; // Перенаправляем на новую ссылку
             });

@@ -1,9 +1,10 @@
+.idea
 .venv/
 .venv/*
 venv/
 venv/*
 database/DB/DataBase.sqlite
-database/__pycache__/
+__pycache__/
 api/__pycache__/
 www/node_modules
 www/package-lock.json
