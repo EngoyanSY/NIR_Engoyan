@@ -6,10 +6,49 @@
     <title>Таблица Main и Training</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
     <style>
+         .header {
+            position: relative;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background-color: #212529;
+            color: #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            z-index: 1000;
+            text-align: center;
+            line-height: 60px;
+            font-size: 1.4em;
+            font-weight: bold;
+        }
+
+        .container-fluid {
+            height: 90vh;
+            padding: 0px;
+            overflow: hidden;
+        }
+
+        .reset-filter-button {
+            position: fixed;
+            top: 63px;
+            right: 100px;
+
+        }
+
+        .back {
+            position: fixed;
+            top: 63px;
+            right: 20px;
+        }
+
         .table-container {
-            height: 73vh;
+            height: 75vh;
             overflow-y: scroll;
         }
+
 
         /* Фиксируем заголовок таблицы здесь */
         thead th {
@@ -20,24 +59,24 @@
             user-select: none;
         }
 
-        #back {
-            position: fixed;
-            top: 3%;
-            left: 90%;
-        }
     </style>
 </head>
 <body>
-    <div class="container mt-4" style="box-shadow: 15px 15px 50px grey">
+    <div class="header">
+        Программное средство НИР
+    </div>
+    <div class="container-fluid" style="box-shadow: 15px 15px 50px grey">
         {% if main_obj and main_obj|length > 0 %}
-            <h2>{{ main_obj.0.id_vuz.name }}</h2>
+            <h2 style="margin: 5px 10px; width: 80%; ">{{ main_obj.0.id_vuz.name }}</h2>
         {% else %}
-            <h2>Нет данных</h2>
+            <h2 style="margin: 5px 10px; width: 80%;">Нет данных</h2>
         {% endif %}
+        <button class="btn btn-primary back" onclick="goBack()">Назад</button>
+        <button id="resetButton" class="btn btn-primary reset-filter-button">Сбросить фильтр</button>
         <div class="form-row">
             <div class="form-group col-md-4">
-                <label for="programFilter">Название программы</label>
                 <select id="programFilter" class="form-control">
+                    <option value="" selected disabled>Название программы</option>
                     <option value="">Все</option>
                     {% for name in fieldname %}
                     <option value="{{ name.fieldid__fieldname }}">{{ name.fieldid__fieldname }}</option>
@@ -45,8 +84,8 @@
                 </select>
             </div>
             <div class="form-group col-md-4">
-                <label for="educationLevelFilter">Уровень образования</label>
                 <select id="educationLevelFilter" class="form-control">
+                    <option value="" selected disabled>Уровень образования</option>
                     <option value="">Все</option>
                     {% for pr in prog %}
                     <option value="{{ pr.progid__progname }}">{{ pr.progid__progname}}</option>
@@ -54,17 +93,14 @@
                 </select>
             </div>
              <div class="form-group col-md-4">
-                <label for="studyFormFilter">Форма обучения</label>
                 <select id="studyFormFilter" class="form-control">
+                    <option value="" selected disabled>Форма обучения</option>
                     <option value="">Все</option>
                     {% for form in formname %}
                     <option value="{{ form.formname }}">{{ form.formname }}</option>
                     {% endfor %}
                 </select>
             </div>
-        </div>
-        <div class="container mt-4" id="back">
-            <button class="btn btn-primary" onclick="goBack()">Назад</button>
         </div>
         <div class="table table-container table-responsive table-hover">
         <table class="table table-bordered">
@@ -143,6 +179,19 @@
         document.getElementById('programFilter').addEventListener('change', filterTable);
         document.getElementById('educationLevelFilter').addEventListener('change', filterTable);
         document.getElementById('studyFormFilter').addEventListener('change', filterTable);
+
+        function resetFilters() {
+        // Сброс значений фильтров
+            document.getElementById('programFilter').value = '';
+            document.getElementById('educationLevelFilter').value = '';
+            document.getElementById('studyFormFilter').value = '';
+
+            // Пересчитываем таблицу без фильтров
+            filterTable();
+        }
+
+         // Обработчик события для кнопки сброса
+        document.getElementById('resetButton').addEventListener('click', resetFilters);
 
         function goBack() {
             window.history.back(); // Возвращает на предыдущую страницу
