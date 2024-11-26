@@ -35,8 +35,8 @@
     <h2>Данные о ВУЗах</h2>
     <div class="form-row">
             <div class="form-group col-md-3">
-                <label for="vuzType">Тип ВУЗа</label>
-                <select id="vuzType" class="form-control">
+                <label for="vuzFilter">Тип ВУЗа</label>
+                <select id="vuzFilter" class="form-control">
                     <option value="">Все</option>
                     <option value="Головные">Головные</option>
                     <option value="Филиалы">Филиалы</option>
@@ -109,7 +109,10 @@
 
     <script>
     function filterVuzTable() {
-        const programFilter = document.getElementById('vuzType').value;
+        const programFilter = document.getElementById('vuzFilter').value;
+        const districtFilter = document.getElementById('districtFilter').value.toLowerCase();
+        const regionFilter = document.getElementById('regionFilter').value.toLowerCase();
+        const ministryFilter = document.getElementById('ministryFilter').value.toLowerCase();
         const tableBody = document.getElementById('vuzTableBody');
         const rows = tableBody.getElementsByTagName('tr');
         console.log(programFilter)
@@ -118,51 +121,35 @@
             if (cells.length > 0) {
                 const vuzIdParent = cells[1].textContent.trim();
                 const vuzIdListedu = cells[2].textContent.trim();
+                const district = cells[5].textContent.toLowerCase();
+                const region = cells[6].textContent.toLowerCase();
+                const ministry = cells[7].textContent.toLowerCase();
 
-                let isMatch = true;
+                let vuzMatch = true;
 
                 // Проверка условия фильтрации
                 if (programFilter === "Головные") {
-                    isMatch = (vuzIdParent === vuzIdListedu);
+                    vuzMatch = (vuzIdParent === vuzIdListedu);
                 } else if (programFilter === "Филиалы") {
-                    isMatch = (vuzIdParent !== vuzIdListedu);
+                    vuzMatch = (vuzIdParent !== vuzIdListedu);
                 }
+                const districtMatch = districtFilter === '' || district === districtFilter;
+                const regionMatch = regionFilter === '' || region === regionFilter;
+                const ministryMatch = ministryFilter === '' || ministry === ministryFilter;
 
                 // Установка видимости строки
-                rows[i].style.display = isMatch ? 'table-row' : 'none';
+                rows[i].style.display = vuzMatch && districtMatch && regionMatch && ministryMatch ? 'table-row' : 'none';
             }
         }
     }
-    </script>
-    <script>
-    function filterTable() {
-        const districtFilter = document.getElementById('districtFilter').value.toLowerCase();
-        const regionFilter = document.getElementById('regionFilter').value.toLowerCase();
-        const ministryFilter = document.getElementById('ministryFilter').value.toLowerCase();
-        const tableBody = document.getElementById('vuzTableBody');
-        const rows = tableBody.getElementsByTagName('tr');
 
-        for (let i = 0; i < rows.length; i++) {
-            const cells = rows[i].getElementsByTagName('td');
-            const district = cells[5].textContent.toLowerCase();
-            const region = cells[6].textContent.toLowerCase();
-            const ministry = cells[7].textContent.toLowerCase();
-
-            // Проверка условий фильтрации
-            const districtMatch = districtFilter === '' || district === districtFilter;
-            const regionMatch = regionFilter === '' || region === regionFilter;
-            const ministryMatch = ministryFilter === '' || ministry === ministryFilter;
-            // Установка видимости строки
-            rows[i].style.display = districtMatch && regionMatch && ministryMatch ? 'table-row' : 'none';
-        }
-    }
     // Обработчик события для фильтра
-    document.getElementById('vuzType').addEventListener('change', filterVuzTable);
-    document.getElementById('districtFilter').addEventListener('change', filterTable);
-    document.getElementById('regionFilter').addEventListener('change', filterTable);
-    document.getElementById('ministryFilter').addEventListener('change', filterTable);
-
+    document.getElementById('vuzFilter').addEventListener('change', filterVuzTable);
+    document.getElementById('districtFilter').addEventListener('change', filterVuzTable);
+    document.getElementById('regionFilter').addEventListener('change', filterVuzTable);
+    document.getElementById('ministryFilter').addEventListener('change', filterVuzTable);
     </script>
+
     <script>
     // JavaScript для обработки кликов по строкам таблицы
     document.addEventListener('DOMContentLoaded', function() {
