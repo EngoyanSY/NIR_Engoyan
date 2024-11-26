@@ -151,6 +151,24 @@
 
 
      <script>
+        document.addEventListener('DOMContentLoaded', function() {
+        var rows = document.querySelectorAll('#programTableBody tr');
+        var hideColumn = true;
+
+        rows.forEach(row => {
+            var course7Cell = row.cells[12]; // 12 - это индекс "Курс 7"
+            if (course7Cell && course7Cell.innerHTML.trim() !== '') {
+                hideColumn = false;
+            }
+        });
+
+        if (hideColumn) {
+            document.querySelectorAll('th:nth-child(13), td:nth-child(13)').forEach(cell => {
+                cell.style.display = 'none';
+            });
+        }
+    });
+
         function filterTable() {
             const programFilter = document.getElementById('programFilter').value.toLowerCase();
             const educationLevelFilter = document.getElementById('educationLevelFilter').value.toLowerCase();
