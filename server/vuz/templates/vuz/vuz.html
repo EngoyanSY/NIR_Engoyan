@@ -31,6 +31,13 @@
             overflow: hidden;
         }
 
+        .reset-filter-button {
+            position: absolute;
+            top: 63px;
+            right: 20px;
+
+        }
+
         .table-container {
             height: 75vh;
             overflow-y: scroll;
@@ -58,7 +65,8 @@
         Программное средство НИР
     </div>
     <div class="container-fluid" style="box-shadow: 15px 15px 50px grey">
-        <h2 style="margin: 5px 10px;">Данные о ВУЗах</h2>
+        <h2 style="margin: 5px 10px; width: 30%;">Данные о ВУЗах</h2>
+        <button id="resetButton" class="btn btn-primary reset-filter-button">Сбросить фильтр</button>
         <div class="form-row" style="margin: 0 10px;">
                 <div class="form-group col-md-3">
                     <select id="vuzFilter" class="form-control">
@@ -173,6 +181,21 @@
     document.getElementById('districtFilter').addEventListener('change', filterVuzTable);
     document.getElementById('regionFilter').addEventListener('change', filterVuzTable);
     document.getElementById('ministryFilter').addEventListener('change', filterVuzTable);
+
+
+    function resetFilters() {
+        // Сброс значений фильтров
+        document.getElementById('vuzFilter').value = '';
+        document.getElementById('districtFilter').value = '';
+        document.getElementById('regionFilter').value = '';
+        document.getElementById('ministryFilter').value = '';
+
+        // Пересчитываем таблицу без фильтров
+        filterVuzTable();
+    }
+
+    // Обработчик события для кнопки сброса
+    document.getElementById('resetButton').addEventListener('click', resetFilters);
     </script>
 
     <script>
