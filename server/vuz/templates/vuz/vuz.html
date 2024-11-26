@@ -6,14 +6,37 @@
     <title>NIR</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
-        /* Устанавливаем фиксированную высоту контейнера и включаем прокрутку */
+        .header {
+            position: relative;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background-color: #212529;
+            color: #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            z-index: 1000;
+            text-align: center;
+            line-height: 60px;
+            font-size: 1.4em;
+            font-weight: bold;
+        }
+
+        .container-fluid {
+            height: 90vh;
+            padding: 0px;
+            overflow: hidden;
+        }
+
         .table-container {
             height: 75vh;
             overflow-y: scroll;
             user-select: none;
         }
 
-        /* Фиксируем заголовок таблицы здесь */
         thead th {
             position: sticky;
             top: 0px;
@@ -31,79 +54,82 @@
     </style>
 </head>
 <body>
-    <div class="container mt-4" style="box-shadow: 15px 15px 50px grey">
-    <h2>Данные о ВУЗах</h2>
-    <div class="form-row">
-            <div class="form-group col-md-3">
-                <label for="vuzFilter">Тип ВУЗа</label>
-                <select id="vuzFilter" class="form-control">
-                    <option value="">Все</option>
-                    <option value="Головные">Головные</option>
-                    <option value="Филиалы">Филиалы</option>
-                </select>
-            </div>
-            <div class="form-group col-md-3">
-                <label for="districtFilter">Округ</label>
-                <select id="districtFilter" class="form-control">
-                    <option value="">Все</option>
-                    {% for district in districts %}
-                    <option value="{{ district.id_district__district }}">{{ district.id_district__district}}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="form-group col-md-3">
-                <label for="regionFilter">Регион</label>
-                <select id="regionFilter" class="form-control">
-                    <option value="">Все</option>
-                    {% for region in regions %}
-                    <option value="{{ region.id_region__region }}">{{ region.id_region__region}}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="form-group col-md-3">
-                <label for="ministryFilter">Министерства</label>
-                <select id="ministryFilter" class="form-control">
-                    <option value="">Все</option>
-                    {% for minist in ministry %}
-                    <option value="{{ minist.id_ministry__ministry }}">{{ minist.id_ministry__ministry}}</option>
-                    {% endfor %}
-                </select>
-            </div>
+    <div class="header">
+        Программное средство НИР
     </div>
-    <div class="table-container table-responsive table-hover">
-        <table id="vuzTable" class="table table-bordered">
-            <thead class="table-dark">
-                <tr>
-                    <th>№</th>
-                    <th class="hidden-column">id_listedu</th>
-                    <th class="hidden-column">id_parent</th>
-                    <th>Наименование</th>
-                    <th>Адрес</th>
-                    <th>Округ</th>
-                    <th>Регион</th>
-                    <th>Министерство</th>
-                </tr>
-            </thead>
-            <tbody class="table-hover" id="vuzTableBody">
-                {% for item in vuz %}
-                <tr data-id = "{{ item.id }}">
-                    <td>{{ item.id }}</td>
-                    <td class="hidden-column">{{ item.id_listedu }}</td>
-                    <td class="hidden-column">{{ item.id_parent }}</td>
-                    <td>{{ item.name}}</td>
-                    <td>{{ item.address }}</td>
-                    <td>{{ item.id_district.district }}</td>
-                    <td>{{ item.id_region.region }}</td>
-                    <td>{{ item.id_ministry.ministry }}</td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="6" class="text-center">Данные отсутствуют</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+    <div class="container-fluid" style="box-shadow: 15px 15px 50px grey">
+        <h2 style="margin: 5px 10px;">Данные о ВУЗах</h2>
+        <div class="form-row" style="margin: 0 10px;">
+                <div class="form-group col-md-3">
+                    <select id="vuzFilter" class="form-control">
+                        <option value="" selected disabled>Тип ВУЗа</option>
+                        <option value="" >Все</option>
+                        <option value="Головные">Головные</option>
+                        <option value="Филиалы">Филиалы</option>
+                    </select>
+                </div>
+                <div class="form-group col-md-3">
+                    <select id="districtFilter" class="form-control">
+                        <option value="" selected disabled>Округ</option>
+                        <option value="">Все</option>
+                        {% for district in districts %}
+                        <option value="{{ district.id_district__district }}">{{ district.id_district__district}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group col-md-3">
+                    <select id="regionFilter" class="form-control">
+                        <option value="" selected disabled>Регион</option>
+                        <option value="">Все</option>
+                        {% for region in regions %}
+                        <option value="{{ region.id_region__region }}">{{ region.id_region__region}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group col-md-3">
+                    <select id="ministryFilter" class="form-control">
+                        <option value="" selected disabled>Министерства</option>
+                        <option value="">Все</option>
+                        {% for minist in ministry %}
+                        <option value="{{ minist.id_ministry__ministry }}">{{ minist.id_ministry__ministry}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+        </div>
+        <div class="table-container table-responsive table-hover">
+            <table id="vuzTable" class="table table-bordered">
+                <thead class="table-dark">
+                    <tr>
+                        <th>№</th>
+                        <th class="hidden-column">id_listedu</th>
+                        <th class="hidden-column">id_parent</th>
+                        <th>Наименование</th>
+                        <th>Адрес</th>
+                        <th>Округ</th>
+                        <th>Регион</th>
+                        <th>Министерство</th>
+                    </tr>
+                </thead>
+                <tbody class="table-hover" id="vuzTableBody">
+                    {% for item in vuz %}
+                    <tr data-id = "{{ item.id }}">
+                        <td>{{ item.id }}</td>
+                        <td class="hidden-column">{{ item.id_listedu }}</td>
+                        <td class="hidden-column">{{ item.id_parent }}</td>
+                        <td>{{ item.name}}</td>
+                        <td>{{ item.address }}</td>
+                        <td>{{ item.id_district.district }}</td>
+                        <td>{{ item.id_region.region }}</td>
+                        <td>{{ item.id_ministry.ministry }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center">Данные отсутствуют</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 
 
@@ -115,7 +141,6 @@
         const ministryFilter = document.getElementById('ministryFilter').value.toLowerCase();
         const tableBody = document.getElementById('vuzTableBody');
         const rows = tableBody.getElementsByTagName('tr');
-        console.log(programFilter)
         for (let i = 0; i < rows.length; i++) {
             const cells = rows[i].getElementsByTagName('td');
             if (cells.length > 0) {
