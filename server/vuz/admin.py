@@ -10,11 +10,14 @@ from .models import (
     Ministries,
 )
 
-admin.site.register([Main,
-                    Vuz,
-                    Training,
-                    Program,
-                    Regions,
-                    Districts,
-                    Ministries,]
-                    )
+admin.site.register(
+    [
+        Main,
+        Vuz,
+        Training,
+        Program,
+        Regions,
+        Districts,
+        Ministries,
+    ]
+)
