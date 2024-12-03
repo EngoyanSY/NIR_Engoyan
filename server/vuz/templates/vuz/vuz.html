@@ -144,19 +144,24 @@
     <script>
     function filterVuzTable() {
         const programFilter = document.getElementById('vuzFilter').value;
-        const districtFilter = document.getElementById('districtFilter').value.toLowerCase();
-        const regionFilter = document.getElementById('regionFilter').value.toLowerCase();
-        const ministryFilter = document.getElementById('ministryFilter').value.toLowerCase();
+        const districtFilter = document.getElementById('districtFilter').value;
+        const regionFilter = document.getElementById('regionFilter').value;
+        const ministryFilter = document.getElementById('ministryFilter').value;
         const tableBody = document.getElementById('vuzTableBody');
         const rows = tableBody.getElementsByTagName('tr');
+
+        const availableDistricts = new Set();
+        const availableRegions = new Set();
+        const availableMinistries = new Set();
+
         for (let i = 0; i < rows.length; i++) {
             const cells = rows[i].getElementsByTagName('td');
             if (cells.length > 0) {
                 const vuzIdParent = cells[1].textContent.trim();
                 const vuzIdListedu = cells[2].textContent.trim();
-                const district = cells[5].textContent.toLowerCase();
-                const region = cells[6].textContent.toLowerCase();
-                const ministry = cells[7].textContent.toLowerCase();
+                const district = cells[5].textContent;
+                const region = cells[6].textContent;
+                const ministry = cells[7].textContent;
 
                 let vuzMatch = true;
 
@@ -166,13 +171,48 @@
                 } else if (programFilter === "Филиалы") {
                     vuzMatch = (vuzIdParent !== vuzIdListedu);
                 }
-                const districtMatch = districtFilter === '' || district === districtFilter;
-                const regionMatch = regionFilter === '' || region === regionFilter;
-                const ministryMatch = ministryFilter === '' || ministry === ministryFilter;
+                const districtMatch = districtFilter === '' || district.toLowerCase() === districtFilter.toLowerCase();
+                const regionMatch = regionFilter === '' || region.toLowerCase() === regionFilter.toLowerCase();
+                const ministryMatch = ministryFilter === '' || ministry.toLowerCase() === ministryFilter.toLowerCase();
 
                 // Установка видимости строки
                 rows[i].style.display = vuzMatch && districtMatch && regionMatch && ministryMatch ? 'table-row' : 'none';
+
+                if (rows[i].style.display === 'table-row') {
+                    availableDistricts.add(district);
+                    availableRegions.add(region);
+                    availableMinistries.add(ministry);
+                }
             }
+        }
+
+        updateFilterOptions('districtFilter', availableDistricts);
+        updateFilterOptions('regionFilter', availableRegions);
+        updateFilterOptions('ministryFilter', availableMinistries);
+    }
+
+    function updateFilterOptions(filterId, availableValues) {
+        const filterElement = document.getElementById(filterId);
+        const currentValue = filterElement.value;
+
+        // Удаляем все опции, кроме первой (которая "Все")
+        while (filterElement.options.length > 1) {
+            filterElement.remove(1);
+        }
+
+        // Добавляем доступные значения
+        availableValues.forEach(value => {
+            let option = document.createElement('option');
+            option.value = value;
+            option.textContent = value; // Убираем изменения регистра
+            filterElement.appendChild(option);
+        });
+
+        // Восстанавливаем выбранное значение, если оно доступно
+        if (availableValues.has(currentValue)) {
+            filterElement.value = currentValue;
+        } else {
+            filterElement.value = ""; // Сбрасываем значение, если оно отсутствует
         }
     }
 
