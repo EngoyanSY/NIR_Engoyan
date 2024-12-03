@@ -170,28 +170,69 @@
     });
 
         function filterTable() {
-            const programFilter = document.getElementById('programFilter').value.toLowerCase();
-            const educationLevelFilter = document.getElementById('educationLevelFilter').value.toLowerCase();
-            const studyFormFilter = document.getElementById('studyFormFilter').value.toLowerCase();
+            const programFilter = document.getElementById('programFilter').value;
+            const educationLevelFilter = document.getElementById('educationLevelFilter').value;
+            const studyFormFilter = document.getElementById('studyFormFilter').value;
 
             const tableBody = document.getElementById('programTableBody');
             const rows = tableBody.getElementsByTagName('tr');
+            
+            const availablePrograms = new Set();
+            const availableEducationLevels = new Set();
+            const availableStudyForms = new Set();
 
             for (let i = 0; i < rows.length; i++) {
                 const cells = rows[i].getElementsByTagName('td');
-                const program = cells[1].textContent.toLowerCase();
-                const educationLevel = cells[3].textContent.toLowerCase();
-                const studyForm = cells[5].textContent.toLowerCase();
+                const program = cells[1].textContent;
+                const educationLevel = cells[3].textContent;
+                const studyForm = cells[5].textContent;
 
                 // Проверка условий фильтрации
-                const programMatch = programFilter === '' || program === programFilter;
-                const educationLevelMatch = educationLevelFilter === '' || educationLevel === educationLevelFilter;
-                const studyFormMatch = studyFormFilter === '' || studyForm === studyFormFilter;
+                const programMatch = programFilter === '' || program.toLowerCase() === programFilter.toLowerCase();
+                const educationLevelMatch = educationLevelFilter === '' || educationLevel.toLowerCase() === educationLevelFilter.toLowerCase();
+                const studyFormMatch = studyFormFilter === '' || studyForm.toLowerCase() === studyFormFilter.toLowerCase();
 
                 // Установка видимости строки
                 rows[i].style.display = programMatch && educationLevelMatch && studyFormMatch ? 'table-row' : 'none';
+                
+                // Добавление доступных значений фильтров
+                if (rows[i].style.display === 'table-row') {
+                    availablePrograms.add(program);
+                    availableEducationLevels.add(educationLevel);
+                    availableStudyForms.add(studyForm);
+                }
             }
+
+            // Обновление опций фильтров
+            updateFilterOptions('programFilter', availablePrograms);
+            updateFilterOptions('educationLevelFilter', availableEducationLevels);
+            updateFilterOptions('studyFormFilter', availableStudyForms);
         }
+
+        function updateFilterOptions(filterId, availableValues) {
+        const filterElement = document.getElementById(filterId);
+        const currentValue = filterElement.value;
+
+        // Удаляем все опции, кроме первой (которая "Все")
+        while (filterElement.options.length > 1) {
+            filterElement.remove(1);
+        }
+
+        // Добавляем доступные значения, без изменения регистра
+        availableValues.forEach(value => {
+            let option = document.createElement('option');
+            option.value = value;
+            option.textContent = value; // Убираем изменения регистра
+            filterElement.appendChild(option);
+        });
+
+        // Восстанавливаем выбранное значение, если оно доступно
+        if (availableValues.has(currentValue)) {
+            filterElement.value = currentValue;
+        } else {
+            filterElement.value = ""; // Сбрасываем значение, если оно отсутствует
+        }
+    }
 
         // Обработчики событий для фильтров
         document.getElementById('programFilter').addEventListener('change', filterTable);
