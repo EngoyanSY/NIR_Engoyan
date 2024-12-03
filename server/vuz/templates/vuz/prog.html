@@ -25,6 +25,10 @@
             font-weight: bold;
         }
 
+        .form-group {
+            font-size: 0.85em;
+        }
+
         .container-fluid {
             height: 90vh;
             padding: 0px;
@@ -59,6 +63,16 @@
             user-select: none;
         }
 
+        .table td {
+            padding: 5px;
+            font-size: 0.85em;
+            width: fit-content;
+        }
+        .table th {
+            padding: 10px;
+            font-size: 1em;
+        }
+
     </style>
 </head>
 <body>
@@ -67,9 +81,9 @@
     </div>
     <div class="container-fluid" style="box-shadow: 15px 15px 50px grey">
         {% if main_obj and main_obj|length > 0 %}
-            <h2 style="margin: 5px 10px; width: 80%; ">{{ main_obj.0.id_vuz.name }}</h2>
+            <h2 style="margin: 5px 10px; width: 80%; font-size: 1.4em;">{{ main_obj.0.id_vuz.name }}</h2>
         {% else %}
-            <h2 style="margin: 5px 10px; width: 80%;">Нет данных</h2>
+            <h2 style="margin: 5px 10px; width: 80%; font-size: 1.4em;">Нет данных</h2>
         {% endif %}
         <button class="btn btn-primary back" onclick="goBack()">Назад</button>
         <button id="resetButton" class="btn btn-primary reset-filter-button">Сбросить фильтр</button>
