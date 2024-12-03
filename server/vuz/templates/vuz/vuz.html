@@ -40,7 +40,7 @@
 
         .table-container {
             height: 75vh;
-            overflow-y: scroll;
+            overflow: scroll;
             user-select: none;
         }
 
@@ -62,7 +62,7 @@
 </head>
 <body>
     <div class="header">
-        Программное средство НИР
+        Анализ данных по образовательным программам
     </div>
     <div class="container-fluid" style="box-shadow: 15px 15px 50px grey">
         <h2 style="margin: 5px 10px; width: 30%;">Перечень ВУЗов</h2>
@@ -104,7 +104,7 @@
                     </select>
                 </div>
         </div>
-        <div class="table-container table-responsive table-hover">
+        <div class="table-container table-hover">
             <table id="vuzTable" class="table table-bordered">
                 <thead class="table-dark">
                     <tr>
@@ -112,10 +112,10 @@
                         <th class="hidden-column">id_listedu</th>
                         <th class="hidden-column">id_parent</th>
                         <th>Наименование</th>
-                        <th>Адрес</th>
                         <th>Округ</th>
                         <th>Регион</th>
                         <th>Министерство</th>
+                        <th>Адрес</th>
                     </tr>
                 </thead>
                 <tbody class="table-hover" id="vuzTableBody">
@@ -125,10 +125,10 @@
                         <td class="hidden-column">{{ item.id_listedu }}</td>
                         <td class="hidden-column">{{ item.id_parent }}</td>
                         <td>{{ item.name}}</td>
-                        <td>{{ item.address }}</td>
                         <td>{{ item.id_district.district }}</td>
                         <td>{{ item.id_region.region }}</td>
                         <td>{{ item.id_ministry.ministry }}</td>
+                        <td>{{ item.address }}</td>
                     </tr>
                     {% empty %}
                     <tr>
@@ -159,9 +159,9 @@
             if (cells.length > 0) {
                 const vuzIdParent = cells[1].textContent.trim();
                 const vuzIdListedu = cells[2].textContent.trim();
-                const district = cells[5].textContent;
-                const region = cells[6].textContent;
-                const ministry = cells[7].textContent;
+                const district = cells[4].textContent;
+                const region = cells[5].textContent;
+                const ministry = cells[6].textContent;
 
                 let vuzMatch = true;
 

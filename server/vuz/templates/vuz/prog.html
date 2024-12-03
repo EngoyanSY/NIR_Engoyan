@@ -63,7 +63,7 @@
 </head>
 <body>
     <div class="header">
-        Программное средство НИР
+        Анализ данных по образовательным программам
     </div>
     <div class="container-fluid" style="box-shadow: 15px 15px 50px grey">
         {% if main_obj and main_obj|length > 0 %}
@@ -102,7 +102,7 @@
                 </select>
             </div>
         </div>
-        <div class="table table-container table-responsive table-hover">
+        <div class="table table-container table-hover">
         <table class="table table-bordered">
             <thead class="table-dark">
                 <tr>
@@ -110,7 +110,7 @@
                     <th>Название программы</th>
                     <th>Код</th>
                     <th>Уровень</th>
-                    <th>Профиль</th>
+                    <!-- <th>Профиль</th> -->
                     <th>Форма</th>
                     <th>Курс 1</th>
                     <th>Курс 2</th>
@@ -128,7 +128,7 @@
                     <td>{{ item.fieldid.fieldname }}</td>
                     <td>{{ item.fieldid.fieldid }}</td>
                     <td>{{ item.progid.progname }}</td>
-                    <td>{{ item.profile }}</td>
+                    <!-- <td>{{ item.profile }}</td> -->
                     <td>{{ item.formname }}</td>
                     <td>{% if item.course1 %}{{ item.course1 }}{% endif %}</td>
                     <td>{% if item.course2 %}{{ item.course2 }}{% endif %}</td>
@@ -151,23 +151,6 @@
 
 
      <script>
-        document.addEventListener('DOMContentLoaded', function() {
-        var rows = document.querySelectorAll('#programTableBody tr');
-        var hideColumn = true;
-
-        rows.forEach(row => {
-            var course7Cell = row.cells[12]; // 12 - это индекс "Курс 7"
-            if (course7Cell && course7Cell.innerHTML.trim() !== '') {
-                hideColumn = false;
-            }
-        });
-
-        if (hideColumn) {
-            document.querySelectorAll('th:nth-child(13), td:nth-child(13)').forEach(cell => {
-                cell.style.display = 'none';
-            });
-        }
-    });
 
         function filterTable() {
             const programFilter = document.getElementById('programFilter').value;
@@ -185,7 +168,7 @@
                 const cells = rows[i].getElementsByTagName('td');
                 const program = cells[1].textContent;
                 const educationLevel = cells[3].textContent;
-                const studyForm = cells[5].textContent;
+                const studyForm = cells[4].textContent;
 
                 // Проверка условий фильтрации
                 const programMatch = programFilter === '' || program.toLowerCase() === programFilter.toLowerCase();
