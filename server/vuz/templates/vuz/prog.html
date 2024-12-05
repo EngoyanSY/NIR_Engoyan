@@ -29,6 +29,22 @@
             font-size: 0.85em;
         }
 
+        .input-group{
+            position: relative;
+            padding: 5px;
+            margin-bottom: 0;
+        }
+
+        .form-control.name {
+            background-color: #212529;
+            color: #fff;
+        }
+
+        .form-control::placeholder {
+            color: #fff;
+            font-family: inherit;
+        }
+
         .container-fluid {
             height: 90vh;
             padding: 0px;
@@ -55,7 +71,7 @@
 
 
         /* Фиксируем заголовок таблицы здесь */
-        thead th {
+        thead tr {
             position: sticky;
             top: 0px;
             background: #212529;
@@ -121,7 +137,11 @@
             <thead class="table-dark">
                 <tr>
                     <th>№</th>
-                    <th>Название программы</th>
+                    <th>
+                        <div class="input-group">
+                            <input type="text" class="form-control name" placeholder="Название">
+                        </div>
+                    </th>
                     <th>Код</th>
                     <th>Уровень</th>
                     <!-- <th>Профиль</th> -->
