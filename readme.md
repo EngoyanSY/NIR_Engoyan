@@ -1,5 +1,4 @@
-Версия python - 3.9, необходимо устанавливать отдельно
-Для быстрой смены версии можно использовать [pyenv](https://github.com/pyenv-win/pyenv-win/tree/master)
+Версия python - 3.9
 
 ## Установка виртуального окружения
 ```
@@ -13,7 +12,6 @@ source venv/bin/activate  # linux
 venv\Scripts\activate  # windows
 ```
 ## Установка зависимостей
-ОБЯЗАТЕЛЬНО апдейт pip:
 ```
 python -m pip install --upgrade pip
 ```
@@ -22,7 +20,7 @@ python -m pip install --upgrade pip
 pip install -r .\requirements.txt
 ```
 
-## Запуск программы
+## Запуск сервера
 ```
-python main.py
+python server/manage.py runserver
 ```
