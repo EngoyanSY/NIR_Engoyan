@@ -25,6 +25,16 @@
             font-weight: bold;
         }
 
+        .form-control.name {
+            background-color: #212529;
+            color: #fff;
+        }
+
+        .form-control::placeholder {
+            color: #ffffff;
+            font-family: inherit;
+        }
+
         .container-fluid {
             height: 90vh;
             padding: 0px;
@@ -68,6 +78,13 @@
 
         .hidden-column {
             display: none;
+        }
+
+        .dropdown-menu {
+            max-height: 200px;
+            overflow-y: scroll;
+            overflow-x: hidden;
+            max-width: 1000px;
         }
     </style>
 </head>
@@ -121,7 +138,10 @@
                         <th>№</th>
                         <th class="hidden-column">id_listedu</th>
                         <th class="hidden-column">id_parent</th>
-                        <th>Наименование</th>
+                        <th>
+                            <input type="text" id="nameSearch" class="form-control name" placeholder="Наименование">
+                            <div id="suggestions" class="dropdown-menu"></div>
+                        </th>
                         <th>Округ</th>
                         <th>Регион</th>
                         <th>Министерство</th>
@@ -134,7 +154,7 @@
                         <td>{{ item.id }}</td>
                         <td class="hidden-column">{{ item.id_listedu }}</td>
                         <td class="hidden-column">{{ item.id_parent }}</td>
-                        <td>{{ item.name}}</td>
+                        <td class="vuz-name">{{ item.name}}</td>
                         <td>{{ item.id_district.district }}</td>
                         <td>{{ item.id_region.region }}</td>
                         <td>{{ item.id_ministry.ministry }}</td>
@@ -298,8 +318,55 @@
             table.dataset.sortOrder = isAscending ? "asc" : "desc";
         }
     });
-
     </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const input = document.getElementById("nameSearch");
+            const suggestions = document.getElementById("suggestions");
+            const names = new Set([...document.querySelectorAll(".vuz-name")].map(el => el.textContent.trim()));
+            const nameArray = Array.from(names).sort();
+
+            input.addEventListener("input", function() {
+                const value = this.value.toLowerCase();
+                suggestions.innerHTML = "";
+                if (value) {
+                    const filtered = nameArray.filter(name => name.toLowerCase().includes(value));
+                    filtered.sort();
+                    filtered.forEach(name => {
+                        const item = document.createElement("div");
+                        item.classList.add("dropdown-item");
+                        item.textContent = name;
+                        item.addEventListener("click", function() {
+                            input.value = name;
+                            suggestions.innerHTML = "";
+                            filterTable(name);
+                        });
+                        suggestions.appendChild(item);
+                    });
+                    suggestions.style.display = filtered.length ? "block" : "none";
+                } else {
+                    suggestions.style.display = "none";
+                }
+            });
+
+            document.addEventListener("click", function(event) {
+                if (!input.contains(event.target) && !suggestions.contains(event.target)) {
+                    suggestions.style.display = "none";
+                }
+            });
+
+            function filterTable(name) {
+                document.querySelectorAll("#vuzTableBody tr").forEach(row => {
+                    const cell = row.querySelector(".vuz-name");
+                    if (cell) {
+                        row.style.display = cell.textContent.trim() === name ? "" : "none";
+                    }
+                });
+            }
+        });
+    </script>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
 </body>
