@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NIR</title>
+    <title>Анализ по образовательным программам</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         .header {
@@ -26,6 +26,7 @@
         }
 
         .form-control.name {
+            width: 60%;
             background-color: #212529;
             color: #fff;
         }
@@ -97,16 +98,14 @@
         <div class="form-row" style="margin: 0 10px;">
                 <div class="form-group col-md-3">
                     <select id="vuzFilter" class="form-control">
-                        <option value="" selected disabled>Тип ВУЗа</option>
-                        <option value="" >Все</option>
+                        <option value="">Тип ВУЗа</option>
                         <option value="Головные">Головные</option>
                         <option value="Филиалы">Филиалы</option>
                     </select>
                 </div>
                 <div class="form-group col-md-3">
                     <select id="districtFilter" class="form-control">
-                        <option value="" selected disabled>Округ</option>
-                        <option value="">Все</option>
+                        <option value="">Округ</option>
                         {% for district in districts %}
                         <option value="{{ district.id_district__district }}">{{ district.id_district__district}}</option>
                         {% endfor %}
@@ -114,8 +113,7 @@
                 </div>
                 <div class="form-group col-md-3">
                     <select id="regionFilter" class="form-control">
-                        <option value="" selected disabled>Регион</option>
-                        <option value="">Все</option>
+                        <option value="">Регион</option>
                         {% for region in regions %}
                         <option value="{{ region.id_region__region }}">{{ region.id_region__region}}</option>
                         {% endfor %}
@@ -123,8 +121,7 @@
                 </div>
                 <div class="form-group col-md-3">
                     <select id="ministryFilter" class="form-control">
-                        <option value="" selected disabled>Министерства</option>
-                        <option value="">Все</option>
+                        <option value="">Министерства</option>
                         {% for minist in ministry %}
                         <option value="{{ minist.id_ministry__ministry }}">{{ minist.id_ministry__ministry}}</option>
                         {% endfor %}
@@ -259,6 +256,7 @@
         document.getElementById('districtFilter').value = '';
         document.getElementById('regionFilter').value = '';
         document.getElementById('ministryFilter').value = '';
+        document.getElementById('nameSearch').value = '';
 
         // Пересчитываем таблицу без фильтров
         filterVuzTable();
@@ -282,21 +280,29 @@
     });
     </script>
 
+    
     <script>
         document.addEventListener("DOMContentLoaded", function () {
         const table = document.getElementById("vuzTable");
         const headers = table.querySelectorAll("th");
         const tbody = table.querySelector("tbody");
-        
-        headers.forEach((header, index) => {
-            if (!header.classList.contains("hidden-column")) {
-                header.style.cursor = "pointer";
-                header.addEventListener("click", () => {
-                    sortTableByColumn(table, index);
-                });
-            }
-        });
+        const nameInput = document.getElementById("nameSearch");
 
+        headers.forEach((header, index) => {
+                if (index !== 3) { // Отключаем сортировку для столбца "Наименование"
+                    header.style.cursor = "pointer";
+                    header.addEventListener("click", () => {
+                        sortTableByColumn(table, index);
+                    });
+                } else {
+                    header.addEventListener("click", (event) => {
+                        if (event.target !== nameInput) {
+                            sortTableByColumn(table, index);
+                        }
+                    });
+                }
+            });
+        // Сортировка таблицы
         function sortTableByColumn(table, columnIndex) {
             const rows = Array.from(tbody.querySelectorAll("tr"));
             const isAscending = table.dataset.sortOrder !== "asc";
@@ -321,6 +327,7 @@
     </script>
 
     <script>
+        // Контекстный поиск
         document.addEventListener("DOMContentLoaded", function() {
             const input = document.getElementById("nameSearch");
             const suggestions = document.getElementById("suggestions");
