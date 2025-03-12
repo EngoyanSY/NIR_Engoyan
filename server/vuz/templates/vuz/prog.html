@@ -47,6 +47,11 @@
             font-family: inherit;
         }
 
+        .mb-3 {
+            margin-left: 10px;
+            margin-bottom: 10px;
+        }
+
         .form-row {
             display: flex;
             flex-wrap: wrap;
@@ -74,7 +79,7 @@
         }
 
         .table-container {
-            height: 75vh;
+            height: 100vh;
             overflow-y: scroll;
         }
 
@@ -109,42 +114,72 @@
     <div class="header">
         Анализ данных по образовательным программам
     </div>
+
+    <!-- Кнопка меню -->
+    <div class="btn-group dropstart" style="position: fixed; top: 10px; right: 10px; z-index: 1000;">
+        <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+            Меню
+        </button>
+        <ul class="dropdown-menu" style="overflow-y: hidden;">
+            <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#filterModal">Фильтр</a></li>
+            <li><a class="dropdown-item" href="#">Программа обучения</a></li>
+            <li><a class="dropdown-item" href="#">Аналитика</a></li>
+        </ul>
+    </div>
+
+     <!-- Модальное окно с фильтрами -->
+     <div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="filterModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="filterModalLabel">Фильтры</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-row">
+                        <div class="mb-3">
+                            <select id="programFilter" class="form-select">
+                                <option value="">Название программы</option>
+                                {% for name in fieldname %}
+                                <option value="{{ name.fieldid__fieldname }}">{{ name.fieldid__fieldname }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <select id="educationLevelFilter" class="form-select">
+                                <option value="" selected>Уровень образования</option>
+                                {% for pr in prog %}
+                                <option value="{{ pr.progid__progname }}">{{ pr.progid__progname}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                         <div class="mb-3">
+                            <select id="studyFormFilter" class="form-select">
+                                <option value="" selected>Форма обучения</option>
+                                {% for form in formname %}
+                                <option value="{{ form.formname }}">{{ form.formname }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                    <button type="button" class="btn btn-primary" id="resetButton">Сбросить фильтр</button>
+                    <button type="button" class="btn btn-primary">Применить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     <div class="container-fluid" style="box-shadow: 15px 15px 50px grey">
         {% if main_obj and main_obj|length > 0 %}
             <h2 style="margin: 5px 10px; width: 80%; font-size: 1.4em;">{{ main_obj.0.id_vuz.name }}</h2>
         {% else %}
             <h2 style="margin: 5px 10px; width: 80%; font-size: 1.4em;">Нет данных</h2>
         {% endif %}
-        <button class="btn btn-primary back" onclick="goBack()">Назад</button>
-        <button id="resetButton" class="btn btn-primary reset-filter-button">Сбросить фильтр</button>
-        <div class="form-row" style="margin: 0 10px;">
-            <div class="col-md-3">
-                <select id="programFilter" class="form-control">
-                    <option value="">Название программы</option>
-                    {% for name in fieldname %}
-                    <option value="{{ name.fieldid__fieldname }}">{{ name.fieldid__fieldname }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="col-md-3">
-                <select id="educationLevelFilter" class="form-control">
-                    <option value="" selected disabled>Уровень образования</option>
-                    <option value="">Все</option>
-                    {% for pr in prog %}
-                    <option value="{{ pr.progid__progname }}">{{ pr.progid__progname}}</option>
-                    {% endfor %}
-                </select>
-            </div>
-             <div class="col-md-3">
-                <select id="studyFormFilter" class="form-control">
-                    <option value="" selected disabled>Форма обучения</option>
-                    <option value="">Все</option>
-                    {% for form in formname %}
-                    <option value="{{ form.formname }}">{{ form.formname }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-        </div>
+        <!-- <button class="btn btn-primary back" onclick="goBack()">Назад</button> -->
         <div class="table table-container table-hover">
         <table class="table table-bordered">
             <thead class="table-dark">
