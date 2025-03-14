@@ -17,8 +17,10 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
+from django.shortcuts import redirect
 
 urlpatterns = [
+    path("", lambda request: redirect('vuz/')),
     path("vuz/", include("vuz.urls")),
     path("admin/", admin.site.urls),
 ]

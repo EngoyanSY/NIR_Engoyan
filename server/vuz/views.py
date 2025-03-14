@@ -2,6 +2,7 @@ from django.shortcuts import render
 from .models import (
     Main,
     Vuz,
+    Training,
 )
 
 
@@ -46,3 +47,24 @@ def prog(request, vuz_id):
         "prog": prog,
     }
     return render(request, "vuz/prog.html", context)
+
+def field_stat(request, field_id):
+    field = Training.objects.get(pk=field_id)
+    fieldid = field.fieldid
+    print(fieldid)
+
+    main_obj = Main.objects.filter(fieldid=fieldid).select_related(
+        "progid", "id_vuz"
+    )
+
+    formname = main_obj.values("formname").distinct().order_by("-formname")
+    vuzname = main_obj.values("id_vuz__name").distinct().order_by("id_vuz__name")
+    prog = main_obj.values("progid__progname").distinct().order_by("progid__progname")
+    context = {
+        "main_obj": main_obj,
+        "formname": formname,
+        "vuzname": vuzname,
+        "prog": prog,
+    }
+    return render(request, "vuz/prog_stat.html", context)
+
