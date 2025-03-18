@@ -180,12 +180,12 @@
 
     <div class="container-fluid" style="box-shadow: 15px 15px 50px grey">
         {% if main_obj and main_obj|length > 0 %}
-            <h2 style="margin: 5px 10px; width: 80%; font-size: 1.4em;">{{ main_obj.0.fieldid.fieldname }}</h2>
+            <h2 style="margin: 5px 10px; width: 80%; font-size: 1.4em;">{{ main_obj.0.fieldid.fieldname }} {{ main_obj.0.progid.progname }}</h2>
         {% else %}
             <h2 style="margin: 5px 10px; width: 80%; font-size: 1.4em;">Нет данных</h2>
         {% endif %}
         <div class="table table-container table-hover">
-        <table class="table table-bordered">
+        <table id='progStatTable'class="table table-bordered">
             <thead class="table-dark">
                 <tr>
                     <th>№</th>
@@ -193,8 +193,7 @@
                         <input type="text" id="nameSearch" class="form-control name" placeholder="Наименование">
                         <div id="suggestions" class="dropdown-menu"></div>
                     </th>
-                    <th>Уровень</th>
-                    <!-- <th>Профиль</th> -->
+                    <th>Профиль</th>
                     <th>Форма</th>
                     <th style="font-size: 0.8em;">Курс 1</th>
                     <th style="font-size: 0.8em;">Курс 2</th>
@@ -210,8 +209,7 @@
                 <tr>
                     <td>{{ forloop.counter }}</td>
                     <td class="vuz-name">{{ item.id_vuz.name }}</td>
-                    <td>{{ item.progid.progname }}</td>
-                    <!-- <td>{{ item.profile }}</td> -->
+                    <td>{{ item.profile }}</td>
                     <td>{{ item.formname }}</td>
                     <td>{% if item.course1 %}{{ item.course1 }}{% endif %}</td>
                     <td>{% if item.course2 %}{{ item.course2 }}{% endif %}</td>
@@ -407,6 +405,53 @@
             function filterTable(name) {
                 document.querySelectorAll("#fieldTableBody tr").forEach(row => {
                     const cell = row.querySelector(".program-name");
+                    if (cell) {
+                        row.style.display = cell.textContent.trim() === name ? "" : "none";
+                    }
+                });
+            }
+        });
+    </script>
+    <script>
+        // Контекстный поиск
+        document.addEventListener("DOMContentLoaded", function() {
+            const input = document.getElementById("nameSearch");
+            const suggestions = document.getElementById("suggestions");
+            const names = new Set([...document.querySelectorAll(".vuz-name")].map(el => el.textContent.trim()));
+            const nameArray = Array.from(names).sort();
+
+            input.addEventListener("input", function() {
+                const value = this.value.toLowerCase();
+                suggestions.innerHTML = "";
+                if (value) {
+                    const filtered = nameArray.filter(name => name.toLowerCase().includes(value));
+                    filtered.sort();
+                    filtered.forEach(name => {
+                        const item = document.createElement("div");
+                        item.classList.add("dropdown-item");
+                        item.textContent = name;
+                        item.addEventListener("click", function() {
+                            input.value = name;
+                            suggestions.innerHTML = "";
+                            filterTable(name);
+                        });
+                        suggestions.appendChild(item);
+                    });
+                    suggestions.style.display = filtered.length ? "block" : "none";
+                } else {
+                    suggestions.style.display = "none";
+                }
+            });
+
+            document.addEventListener("click", function(event) {
+                if (!input.contains(event.target) && !suggestions.contains(event.target)) {
+                    suggestions.style.display = "none";
+                }
+            });
+
+            function filterTable(name) {
+                document.querySelectorAll("#progStatTable tr").forEach(row => {
+                    const cell = row.querySelector(".vuz-name");
                     if (cell) {
                         row.style.display = cell.textContent.trim() === name ? "" : "none";
                     }
