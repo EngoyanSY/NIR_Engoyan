@@ -125,6 +125,7 @@
     <div class="header">
         Анализ данных по образовательным программам
     </div>
+    
     <!-- Кнопка меню -->
     <div class="btn-group dropstart" style="position: fixed; top: 10px; right: 10px; z-index: 1000;">
         <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
@@ -133,7 +134,13 @@
         <ul class="dropdown-menu" style="overflow-y: hidden;">
             <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#filterModal">Фильтр</a></li>
             <li><a class="dropdown-item" href="#">Программа обучения</a></li>
-            <li><a class="dropdown-item" href="#">Аналитика</a></li>
+            <li class="dropdown-submenu">
+                <a class="dropdown-item dropdown-toggle" href="#">Аналитика</a>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="#">Аналитика по округам</a></li>
+                    <li><a class="dropdown-item" href="#">Аналитика по программе</a></li>
+                </ul>
+            </li>
         </ul>
     </div>
 
@@ -231,9 +238,22 @@
     </div>
 </body>
     <script>
-        // Открытие меню по клику на кнопку
-        $('#menu-button').on('click', function () {
-            $(this).next('.dropdown-menu').toggle();
+        // Открытие основного меню при клике на кнопку
+        document.getElementById('menu-button').addEventListener('click', function () {
+            var menu = this.nextElementSibling;
+            menu.classList.toggle('show'); // Переключение видимости меню
+        });
+
+        // Обработка клика по подменю (Аналитика)
+        document.querySelectorAll('.dropdown-submenu > a').forEach((submenu) => {
+            submenu.addEventListener('click', function (e) {
+                var nextElement = submenu.nextElementSibling;
+                if (nextElement && nextElement.classList.contains('dropdown-menu')) {
+                    nextElement.classList.toggle('show'); // Переключение видимости подменю
+                }
+                e.stopPropagation(); // Остановка распространения события
+                e.preventDefault(); // Остановка дефолтного действия (переход по ссылке)
+            });
         });
     </script>
     <script>

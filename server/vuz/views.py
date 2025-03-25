@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404
-from django.http import JsonResponse
-from django.db.models import Min, Max, Avg, Q
+from django.db.models import Min, Max, Avg, Q, IntegerField,  Value
+from django.db.models.functions import Cast
 from .models import (
     Main,
     Vuz,
@@ -86,15 +86,15 @@ def analitic_districts_get(request):
         .values("id_vuz__id_district__id_district", "id_vuz__id_district__district")
         .exclude(id_vuz__id_district__id_district=9999) 
         .annotate(
-            och_avg=Avg('course1', filter=Q(formname='очная')),
-            och_min=Min('course1', filter=Q(formname='очная')),
-            och_max=Max('course1', filter=Q(formname='очная')),
-            ochzaoch_avg=Avg('course1', filter=Q(formname='очно-заочная')),
-            ochzaoch_min=Min('course1', filter=Q(formname='очно-заочная')),
-            ochzaoch_max=Max('course1', filter=Q(formname='очно-заочная')),
-            zaoch_avg=Avg('course1', filter=Q(formname='заочная')),
-            zaoch_min=Min('course1', filter=Q(formname='заочная')),
-            zaoch_max=Max('course1', filter=Q(formname='заочная'))
+            och_avg=Cast(Avg('course1', filter=Q(formname='очная'), default=Value(0)), IntegerField()),
+            och_min=Min('course1', filter=Q(formname='очная'), default=Value(0)),
+            och_max=Max('course1', filter=Q(formname='очная'), default=Value(0)),
+            ochzaoch_avg=Cast(Avg('course1', filter=Q(formname='очно-заочная'), default=Value(0)), IntegerField()),
+            ochzaoch_min=Min('course1', filter=Q(formname='очно-заочная'), default=Value(0)),
+            ochzaoch_max=Max('course1', filter=Q(formname='очно-заочная'), default=Value(0)),
+            zaoch_avg=Cast(Avg('course1', filter=Q(formname='заочная'), default=Value(0)), IntegerField()),
+            zaoch_min=Min('course1', filter=Q(formname='заочная'), default=Value(0)),
+            zaoch_max=Max('course1', filter=Q(formname='заочная'), default=Value(0))
         )
     )
 

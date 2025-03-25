@@ -115,9 +115,8 @@
         <form method="get" class="mb-4">
             <div class="d-flex align-items-end gap-2">
                 <div class="custom-select-container">
-                    <label for="field_id" class="form-label">Направление:</label>
                     <select class="form-select" name="field_id" id="field_id" required>
-                        <option value="">-- Выберите --</option>
+                        <option value="">Направление подготовки</option>
                         {% for field in fields %}
                             <option value="{{ field.fieldid }}">{{ field.fieldid }} {{ field.fieldname }}</option>
                         {% endfor %}
