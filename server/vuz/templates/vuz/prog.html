@@ -209,7 +209,7 @@
             </thead>
             <tbody id="programTableBody">
                 {% for item in main_obj %}
-                <tr>
+                <tr data-id="{{ item.fieldid.fieldid }}">
                     <td>{{ forloop.counter }}</td>
                     <td class="program-name">{{ item.fieldid.fieldname }}</td>
                     <td>{{ item.fieldid.fieldid }}</td>
@@ -234,190 +234,188 @@
         </table>
         </div>
     </div>
+</body>
+<script>
+    function filterTable() {
+        const programFilter = document.getElementById('programFilter').value;
+        const educationLevelFilter = document.getElementById('educationLevelFilter').value;
+        const studyFormFilter = document.getElementById('studyFormFilter').value;
 
+        const tableBody = document.getElementById('programTableBody');
+        const rows = tableBody.getElementsByTagName('tr');
+        
+        const availablePrograms = new Set();
+        const availableEducationLevels = new Set();
+        const availableStudyForms = new Set();
 
-     <script>
-        function filterTable() {
-            const programFilter = document.getElementById('programFilter').value;
-            const educationLevelFilter = document.getElementById('educationLevelFilter').value;
-            const studyFormFilter = document.getElementById('studyFormFilter').value;
+        for (let i = 0; i < rows.length; i++) {
+            const cells = rows[i].getElementsByTagName('td');
+            const program = cells[1].textContent;
+            const educationLevel = cells[3].textContent;
+            const studyForm = cells[4].textContent;
 
-            const tableBody = document.getElementById('programTableBody');
-            const rows = tableBody.getElementsByTagName('tr');
+            // Проверка условий фильтрации
+            const programMatch = programFilter === '' || program.toLowerCase() === programFilter.toLowerCase();
+            const educationLevelMatch = educationLevelFilter === '' || educationLevel.toLowerCase() === educationLevelFilter.toLowerCase();
+            const studyFormMatch = studyFormFilter === '' || studyForm.toLowerCase() === studyFormFilter.toLowerCase();
+
+            // Установка видимости строки
+            rows[i].style.display = programMatch && educationLevelMatch && studyFormMatch ? 'table-row' : 'none';
             
-            const availablePrograms = new Set();
-            const availableEducationLevels = new Set();
-            const availableStudyForms = new Set();
-
-            for (let i = 0; i < rows.length; i++) {
-                const cells = rows[i].getElementsByTagName('td');
-                const program = cells[1].textContent;
-                const educationLevel = cells[3].textContent;
-                const studyForm = cells[4].textContent;
-
-                // Проверка условий фильтрации
-                const programMatch = programFilter === '' || program.toLowerCase() === programFilter.toLowerCase();
-                const educationLevelMatch = educationLevelFilter === '' || educationLevel.toLowerCase() === educationLevelFilter.toLowerCase();
-                const studyFormMatch = studyFormFilter === '' || studyForm.toLowerCase() === studyFormFilter.toLowerCase();
-
-                // Установка видимости строки
-                rows[i].style.display = programMatch && educationLevelMatch && studyFormMatch ? 'table-row' : 'none';
-                
-                // Добавление доступных значений фильтров
-                if (rows[i].style.display === 'table-row') {
-                    availablePrograms.add(program);
-                    availableEducationLevels.add(educationLevel);
-                    availableStudyForms.add(studyForm);
-                }
+            // Добавление доступных значений фильтров
+            if (rows[i].style.display === 'table-row') {
+                availablePrograms.add(program);
+                availableEducationLevels.add(educationLevel);
+                availableStudyForms.add(studyForm);
             }
-
-            // Обновление опций фильтров
-            updateFilterOptions('programFilter', availablePrograms);
-            updateFilterOptions('educationLevelFilter', availableEducationLevels);
-            updateFilterOptions('studyFormFilter', availableStudyForms);
         }
 
-        function updateFilterOptions(filterId, availableValues) {
-        const filterElement = document.getElementById(filterId);
-        const currentValue = filterElement.value;
-
-        // Удаляем все опции, кроме первой (которая "Все")
-        while (filterElement.options.length > 1) {
-            filterElement.remove(1);
-        }
-
-        // Добавляем доступные значения, без изменения регистра
-        availableValues.forEach(value => {
-            let option = document.createElement('option');
-            option.value = value;
-            option.textContent = value; // Убираем изменения регистра
-            filterElement.appendChild(option);
-        });
-
-        // Восстанавливаем выбранное значение, если оно доступно
-        if (availableValues.has(currentValue)) {
-            filterElement.value = currentValue;
-        } else {
-            filterElement.value = ""; // Сбрасываем значение, если оно отсутствует
-        }
+        // Обновление опций фильтров
+        updateFilterOptions('programFilter', availablePrograms);
+        updateFilterOptions('educationLevelFilter', availableEducationLevels);
+        updateFilterOptions('studyFormFilter', availableStudyForms);
     }
 
-        // Обработчики событий для фильтров
-        document.getElementById('programFilter').addEventListener('change', filterTable);
-        document.getElementById('educationLevelFilter').addEventListener('change', filterTable);
-        document.getElementById('studyFormFilter').addEventListener('change', filterTable);
+    function updateFilterOptions(filterId, availableValues) {
+    const filterElement = document.getElementById(filterId);
+    const currentValue = filterElement.value;
 
-        function resetFilters() {
-        // Сброс значений фильтров
-            document.getElementById('programFilter').value = '';
-            document.getElementById('educationLevelFilter').value = '';
-            document.getElementById('studyFormFilter').value = '';
-            document.getElementById('nameSearch').value = '';
+    // Удаляем все опции, кроме первой (которая "Все")
+    while (filterElement.options.length > 1) {
+        filterElement.remove(1);
+    }
 
-            // Пересчитываем таблицу без фильтров
-            filterTable();
-        }
+    // Добавляем доступные значения, без изменения регистра
+    availableValues.forEach(value => {
+        let option = document.createElement('option');
+        option.value = value;
+        option.textContent = value; // Убираем изменения регистра
+        filterElement.appendChild(option);
+    });
 
-         // Обработчик события для кнопки сброса
-        document.getElementById('resetButton').addEventListener('click', resetFilters);
+    // Восстанавливаем выбранное значение, если оно доступно
+    if (availableValues.has(currentValue)) {
+        filterElement.value = currentValue;
+    } else {
+        filterElement.value = ""; // Сбрасываем значение, если оно отсутствует
+    }
+}
 
-        function goBack() {
-            window.history.back(); // Возвращает на предыдущую страницу
-        }
-    </script>
+    // Обработчики событий для фильтров
+    document.getElementById('programFilter').addEventListener('change', filterTable);
+    document.getElementById('educationLevelFilter').addEventListener('change', filterTable);
+    document.getElementById('studyFormFilter').addEventListener('change', filterTable);
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const table = document.querySelector(".table.table-bordered");
-            const headers = table.querySelectorAll("th");
-            const tbody = table.querySelector("tbody");
-            const nameInput = document.getElementById("nameSearch");
+    function resetFilters() {
+    // Сброс значений фильтров
+        document.getElementById('programFilter').value = '';
+        document.getElementById('educationLevelFilter').value = '';
+        document.getElementById('studyFormFilter').value = '';
+        document.getElementById('nameSearch').value = '';
 
-            headers.forEach((header, index) => {
-                if (index !== 1) { // Отключаем сортировку для столбца "Наименование"
-                    header.style.cursor = "pointer";
-                    header.addEventListener("click", () => {
+        // Пересчитываем таблицу без фильтров
+        filterTable();
+    }
+
+     // Обработчик события для кнопки сброса
+    document.getElementById('resetButton').addEventListener('click', resetFilters);
+
+    function goBack() {
+        window.history.back(); // Возвращает на предыдущую страницу
+    }
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const table = document.querySelector(".table.table-bordered");
+        const headers = table.querySelectorAll("th");
+        const tbody = table.querySelector("tbody");
+        const nameInput = document.getElementById("nameSearch");
+
+        headers.forEach((header, index) => {
+            if (index !== 1) { // Отключаем сортировку для столбца "Наименование"
+                header.style.cursor = "pointer";
+                header.addEventListener("click", () => {
+                    sortTableByColumn(table, index);
+                });
+            } else {
+                header.addEventListener("click", (event) => {
+                    if (event.target !== nameInput) {
                         sortTableByColumn(table, index);
-                    });
-                } else {
-                    header.addEventListener("click", (event) => {
-                        if (event.target !== nameInput) {
-                            sortTableByColumn(table, index);
-                        }
-                    });
-                }
-            });
-
-            function sortTableByColumn(table, columnIndex) {
-                const rows = Array.from(tbody.querySelectorAll("tr"));
-                const isAscending = table.dataset.sortOrder !== "asc";
-                
-                rows.sort((rowA, rowB) => {
-                    const cellA = rowA.cells[columnIndex].textContent.trim();
-                    const cellB = rowB.cells[columnIndex].textContent.trim();
-                    
-                    const isNumeric = !isNaN(cellA) && !isNaN(cellB) && cellA !== "" && cellB !== "";
-                    if (isNumeric) {
-                        return isAscending ? cellA - cellB : cellB - cellA;
-                    }
-                    return isAscending ? cellA.localeCompare(cellB) : cellB.localeCompare(cellA);
-                });
-                
-                tbody.innerHTML = "";
-                rows.forEach(row => tbody.appendChild(row));
-                
-                table.dataset.sortOrder = isAscending ? "asc" : "desc";
-            }
-        });
-    </script>
-
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const input = document.getElementById("nameSearch");
-            const suggestions = document.getElementById("suggestions");
-            const names = new Set([...document.querySelectorAll(".program-name")].map(el => el.textContent.trim()));
-            const nameArray = Array.from(names).sort();
-
-            input.addEventListener("input", function() {
-                const value = this.value.toLowerCase();
-                suggestions.innerHTML = "";
-                if (value) {
-                    const filtered = nameArray.filter(name => name.toLowerCase().includes(value));
-                    filtered.sort();
-                    filtered.forEach(name => {
-                        const item = document.createElement("div");
-                        item.classList.add("dropdown-item");
-                        item.textContent = name;
-                        item.addEventListener("click", function() {
-                            input.value = name;
-                            suggestions.innerHTML = "";
-                            filterTable(name);
-                        });
-                        suggestions.appendChild(item);
-                    });
-                    suggestions.style.display = filtered.length ? "block" : "none";
-                } else {
-                    suggestions.style.display = "none";
-                }
-            });
-
-            document.addEventListener("click", function(event) {
-                if (!input.contains(event.target) && !suggestions.contains(event.target)) {
-                    suggestions.style.display = "none";
-                }
-            });
-
-            function filterTable(name) {
-                document.querySelectorAll("#programTableBody tr").forEach(row => {
-                    const cell = row.querySelector(".program-name");
-                    if (cell) {
-                        row.style.display = cell.textContent.trim() === name ? "" : "none";
                     }
                 });
             }
         });
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
-</body>
+
+        function sortTableByColumn(table, columnIndex) {
+            const rows = Array.from(tbody.querySelectorAll("tr"));
+            const isAscending = table.dataset.sortOrder !== "asc";
+            
+            rows.sort((rowA, rowB) => {
+                const cellA = rowA.cells[columnIndex].textContent.trim();
+                const cellB = rowB.cells[columnIndex].textContent.trim();
+                
+                const isNumeric = !isNaN(cellA) && !isNaN(cellB) && cellA !== "" && cellB !== "";
+                if (isNumeric) {
+                    return isAscending ? cellA - cellB : cellB - cellA;
+                }
+                return isAscending ? cellA.localeCompare(cellB) : cellB.localeCompare(cellA);
+            });
+            
+            tbody.innerHTML = "";
+            rows.forEach(row => tbody.appendChild(row));
+            
+            table.dataset.sortOrder = isAscending ? "asc" : "desc";
+        }
+    });
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const input = document.getElementById("nameSearch");
+        const suggestions = document.getElementById("suggestions");
+        const names = new Set([...document.querySelectorAll(".program-name")].map(el => el.textContent.trim()));
+        const nameArray = Array.from(names).sort();
+
+        input.addEventListener("input", function() {
+            const value = this.value.toLowerCase();
+            suggestions.innerHTML = "";
+            if (value) {
+                const filtered = nameArray.filter(name => name.toLowerCase().includes(value));
+                filtered.sort();
+                filtered.forEach(name => {
+                    const item = document.createElement("div");
+                    item.classList.add("dropdown-item");
+                    item.textContent = name;
+                    item.addEventListener("click", function() {
+                        input.value = name;
+                        suggestions.innerHTML = "";
+                        filterTable(name);
+                    });
+                    suggestions.appendChild(item);
+                });
+                suggestions.style.display = filtered.length ? "block" : "none";
+            } else {
+                suggestions.style.display = "none";
+            }
+        });
+
+        document.addEventListener("click", function(event) {
+            if (!input.contains(event.target) && !suggestions.contains(event.target)) {
+                suggestions.style.display = "none";
+            }
+        });
+
+        function filterTable(name) {
+            document.querySelectorAll("#programTableBody tr").forEach(row => {
+                const cell = row.querySelector(".program-name");
+                if (cell) {
+                    row.style.display = cell.textContent.trim() === name ? "" : "none";
+                }
+            });
+        }
+    });
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
 </html>
