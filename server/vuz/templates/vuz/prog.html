@@ -128,10 +128,34 @@
         <ul class="dropdown-menu" style="overflow-y: hidden;">
             <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#filterModal">Фильтр</a></li>
             <li><a class="dropdown-item" href="#">Программа обучения</a></li>
-            <li><a class="dropdown-item" href="#">Аналитика</a></li>
-            <li><a class="dropdown-item" href="#" onclick="goBack()">Назад</a></li>
-            
+            <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#analyticsModal">Аналитика</a></li>
+            <li><a class="dropdown-item" href="#" onclick="window.location.href='/vuz/'">Главная</a></li>
         </ul>
+    </div>
+
+    <!-- Модальное окно для Аналитики -->
+    <div class="modal fade" id="analyticsModal" tabindex="-1" aria-labelledby="analyticsModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="analyticsModalLabel">Аналитика</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="d-grid gap-2">
+                        <button type="button" class="btn btn-primary" onclick="window.location.href='/vuz/analitic/district/'">
+                            Аналитика по округам
+                        </button>
+                        <button type="button" class="btn btn-primary" onclick="window.location.href='#'">
+                            Аналитика по программе
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                </div>
+            </div>
+        </div>
     </div>
 
      <!-- Модальное окно с фильтрами -->
@@ -235,6 +259,21 @@
         </div>
     </div>
 </body>
+
+<script>
+    // Ссылка на аналитику по программам
+    document.addEventListener('DOMContentLoaded', function() {
+        const select = document.getElementById('analiticProgSelect');
+        
+        select.addEventListener('change', function() {
+            const fieldId = this.value; // Получаем выбранное значение
+            if (fieldId) { // Проверяем, что выбрана не пустая опция
+                window.location.href = `/vuz/analitic/prog/${fieldId}/`;
+            }
+        });
+    });
+</script>
+
 <script>
     function filterTable() {
         const programFilter = document.getElementById('programFilter').value;

@@ -21,10 +21,17 @@ def vuz(request):
         .distinct()
         .order_by("id_ministry__ministry")
     )
+
+    fields = (
+        Training.objects.all().values("fieldid", "fieldname").distinct().order_by("fieldname")
+    )
+
+
     context = {
         "regions": regions,
         "districts": districts,
         "ministry": ministry,
+        "fields": fields,
         "vuz": vuz,
     }
     return render(request, "vuz/vuz.html", context)

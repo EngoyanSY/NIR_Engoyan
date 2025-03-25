@@ -134,14 +134,38 @@
         <ul class="dropdown-menu" style="overflow-y: hidden;">
             <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#filterModal">Фильтр</a></li>
             <li><a class="dropdown-item" href="#">Программа обучения</a></li>
-            <li class="dropdown-submenu">
-                <a class="dropdown-item dropdown-toggle" href="#">Аналитика</a>
-                <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="#">Аналитика по округам</a></li>
-                    <li><a class="dropdown-item" href="#">Аналитика по программе</a></li>
-                </ul>
-            </li>
+            <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#analyticsModal">Аналитика</a></li>
         </ul>
+    </div>
+
+    <!-- Модальное окно для Аналитики -->
+    <div class="modal fade" id="analyticsModal" tabindex="-1" aria-labelledby="analyticsModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="analyticsModalLabel">Аналитика</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="d-grid gap-2">
+                        <button type="button" class="btn btn-primary" onclick="window.location.href='/vuz/analitic/district/'">
+                            Аналитика по округам
+                        </button>
+                        <div class="mb-3">
+                            <select id="analiticProgSelect" class="form-select analitic">
+                                <option value="">Аналитика по программе</option>
+                                {% for field in fields %}
+                                <option value="{{ field.fieldid }}">{{ field.fieldid }} {{ field.fieldname }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Модальное окно с фильтрами -->
@@ -237,230 +261,232 @@
         </div>
     </div>
 </body>
-    <script>
-        // Открытие основного меню при клике на кнопку
-        document.getElementById('menu-button').addEventListener('click', function () {
-            var menu = this.nextElementSibling;
-            menu.classList.toggle('show'); // Переключение видимости меню
+<script>
+    // Открытие основного меню при клике на кнопку
+    document.getElementById('menu-button').addEventListener('click', function () {
+        var menu = this.nextElementSibling;
+        menu.classList.toggle('show'); // Переключение видимости меню
+    });
+</script>
+
+<script>
+    // Ссылка на аналитику по программам
+    document.addEventListener('DOMContentLoaded', function() {
+        const select = document.getElementById('analiticProgSelect');
+        
+        select.addEventListener('change', function() {
+            const fieldId = this.value; // Получаем выбранное значение
+            if (fieldId) { // Проверяем, что выбрана не пустая опция
+                window.location.href = `/vuz/analitic/prog/${fieldId}/`;
+            }
         });
+    });
+</script>
+<script>
+function filterVuzTable() {
+    const programFilter = document.getElementById('vuzFilter').value;
+    const districtFilter = document.getElementById('districtFilter').value;
+    const regionFilter = document.getElementById('regionFilter').value;
+    const ministryFilter = document.getElementById('ministryFilter').value;
+    const tableBody = document.getElementById('vuzTableBody');
+    const rows = tableBody.getElementsByTagName('tr');
 
-        // Обработка клика по подменю (Аналитика)
-        document.querySelectorAll('.dropdown-submenu > a').forEach((submenu) => {
-            submenu.addEventListener('click', function (e) {
-                var nextElement = submenu.nextElementSibling;
-                if (nextElement && nextElement.classList.contains('dropdown-menu')) {
-                    nextElement.classList.toggle('show'); // Переключение видимости подменю
-                }
-                e.stopPropagation(); // Остановка распространения события
-                e.preventDefault(); // Остановка дефолтного действия (переход по ссылке)
-            });
-        });
-    </script>
-    <script>
-    function filterVuzTable() {
-        const programFilter = document.getElementById('vuzFilter').value;
-        const districtFilter = document.getElementById('districtFilter').value;
-        const regionFilter = document.getElementById('regionFilter').value;
-        const ministryFilter = document.getElementById('ministryFilter').value;
-        const tableBody = document.getElementById('vuzTableBody');
-        const rows = tableBody.getElementsByTagName('tr');
+    const availableDistricts = new Set();
+    const availableRegions = new Set();
+    const availableMinistries = new Set();
 
-        const availableDistricts = new Set();
-        const availableRegions = new Set();
-        const availableMinistries = new Set();
+    for (let i = 0; i < rows.length; i++) {
+        const cells = rows[i].getElementsByTagName('td');
+        if (cells.length > 0) {
+            const vuzIdParent = cells[1].textContent.trim();
+            const vuzIdListedu = cells[2].textContent.trim();
+            const district = cells[4].textContent;
+            const region = cells[5].textContent;
+            const ministry = cells[6].textContent;
 
-        for (let i = 0; i < rows.length; i++) {
-            const cells = rows[i].getElementsByTagName('td');
-            if (cells.length > 0) {
-                const vuzIdParent = cells[1].textContent.trim();
-                const vuzIdListedu = cells[2].textContent.trim();
-                const district = cells[4].textContent;
-                const region = cells[5].textContent;
-                const ministry = cells[6].textContent;
+            let vuzMatch = true;
 
-                let vuzMatch = true;
+            // Проверка условия фильтрации
+            if (programFilter === "Головные") {
+                vuzMatch = (vuzIdParent === vuzIdListedu);
+            } else if (programFilter === "Филиалы") {
+                vuzMatch = (vuzIdParent !== vuzIdListedu);
+            }
+            const districtMatch = districtFilter === '' || district.toLowerCase() === districtFilter.toLowerCase();
+            const regionMatch = regionFilter === '' || region.toLowerCase() === regionFilter.toLowerCase();
+            const ministryMatch = ministryFilter === '' || ministry.toLowerCase() === ministryFilter.toLowerCase();
 
-                // Проверка условия фильтрации
-                if (programFilter === "Головные") {
-                    vuzMatch = (vuzIdParent === vuzIdListedu);
-                } else if (programFilter === "Филиалы") {
-                    vuzMatch = (vuzIdParent !== vuzIdListedu);
-                }
-                const districtMatch = districtFilter === '' || district.toLowerCase() === districtFilter.toLowerCase();
-                const regionMatch = regionFilter === '' || region.toLowerCase() === regionFilter.toLowerCase();
-                const ministryMatch = ministryFilter === '' || ministry.toLowerCase() === ministryFilter.toLowerCase();
+            // Установка видимости строки
+            rows[i].style.display = vuzMatch && districtMatch && regionMatch && ministryMatch ? 'table-row' : 'none';
 
-                // Установка видимости строки
-                rows[i].style.display = vuzMatch && districtMatch && regionMatch && ministryMatch ? 'table-row' : 'none';
-
-                if (rows[i].style.display === 'table-row') {
-                    availableDistricts.add(district);
-                    availableRegions.add(region);
-                    availableMinistries.add(ministry);
-                }
+            if (rows[i].style.display === 'table-row') {
+                availableDistricts.add(district);
+                availableRegions.add(region);
+                availableMinistries.add(ministry);
             }
         }
-
-        updateFilterOptions('districtFilter', availableDistricts);
-        updateFilterOptions('regionFilter', availableRegions);
-        updateFilterOptions('ministryFilter', availableMinistries);
     }
 
-    function updateFilterOptions(filterId, availableValues) {
-        const filterElement = document.getElementById(filterId);
-        const currentValue = filterElement.value;
+    updateFilterOptions('districtFilter', availableDistricts);
+    updateFilterOptions('regionFilter', availableRegions);
+    updateFilterOptions('ministryFilter', availableMinistries);
+}
 
-        // Удаляем все опции, кроме первой (которая "Все")
-        while (filterElement.options.length > 1) {
-            filterElement.remove(1);
-        }
+function updateFilterOptions(filterId, availableValues) {
+    const filterElement = document.getElementById(filterId);
+    const currentValue = filterElement.value;
 
-        // Добавляем доступные значения
-        availableValues.forEach(value => {
-            let option = document.createElement('option');
-            option.value = value;
-            option.textContent = value; // Убираем изменения регистра
-            filterElement.appendChild(option);
-        });
-
-        // Восстанавливаем выбранное значение, если оно доступно
-        if (availableValues.has(currentValue)) {
-            filterElement.value = currentValue;
-        } else {
-            filterElement.value = ""; // Сбрасываем значение, если оно отсутствует
-        }
+    // Удаляем все опции, кроме первой (которая "Все")
+    while (filterElement.options.length > 1) {
+        filterElement.remove(1);
     }
 
-    // Обработчик события для фильтра
-    document.getElementById('vuzFilter').addEventListener('change', filterVuzTable);
-    document.getElementById('districtFilter').addEventListener('change', filterVuzTable);
-    document.getElementById('regionFilter').addEventListener('change', filterVuzTable);
-    document.getElementById('ministryFilter').addEventListener('change', filterVuzTable);
+    // Добавляем доступные значения
+    availableValues.forEach(value => {
+        let option = document.createElement('option');
+        option.value = value;
+        option.textContent = value; // Убираем изменения регистра
+        filterElement.appendChild(option);
+    });
 
-
-    function resetFilters() {
-        // Сброс значений фильтров
-        document.getElementById('vuzFilter').value = '';
-        document.getElementById('districtFilter').value = '';
-        document.getElementById('regionFilter').value = '';
-        document.getElementById('ministryFilter').value = '';
-        document.getElementById('nameSearch').value = '';
-
-        // Пересчитываем таблицу без фильтров
-        filterVuzTable();
+    // Восстанавливаем выбранное значение, если оно доступно
+    if (availableValues.has(currentValue)) {
+        filterElement.value = currentValue;
+    } else {
+        filterElement.value = ""; // Сбрасываем значение, если оно отсутствует
     }
+}
 
-    // Обработчик события для кнопки сброса
-    document.getElementById('resetButton').addEventListener('click', resetFilters);
-    </script>
+// Обработчик события для фильтра
+document.getElementById('vuzFilter').addEventListener('change', filterVuzTable);
+document.getElementById('districtFilter').addEventListener('change', filterVuzTable);
+document.getElementById('regionFilter').addEventListener('change', filterVuzTable);
+document.getElementById('ministryFilter').addEventListener('change', filterVuzTable);
 
-    <script>
-    // JavaScript для обработки кликов по строкам таблицы
-    document.addEventListener('DOMContentLoaded', function() {
-        const rows = document.querySelectorAll('#vuzTable tbody tr');
 
-        rows.forEach(row => {
-            row.addEventListener('dblclick', function() {
-                const vuzId = this.getAttribute('data-id'); // Получаем значение из атрибута data-id
-                window.location.href = `prog/${vuzId}/`; // Перенаправляем на новую ссылку
-            });
+function resetFilters() {
+    // Сброс значений фильтров
+    document.getElementById('vuzFilter').value = '';
+    document.getElementById('districtFilter').value = '';
+    document.getElementById('regionFilter').value = '';
+    document.getElementById('ministryFilter').value = '';
+    document.getElementById('nameSearch').value = '';
+
+    // Пересчитываем таблицу без фильтров
+    filterVuzTable();
+}
+
+// Обработчик события для кнопки сброса
+document.getElementById('resetButton').addEventListener('click', resetFilters);
+</script>
+
+<script>
+// JavaScript для обработки кликов по строкам таблицы
+document.addEventListener('DOMContentLoaded', function() {
+    const rows = document.querySelectorAll('#vuzTable tbody tr');
+
+    rows.forEach(row => {
+        row.addEventListener('dblclick', function() {
+            const vuzId = this.getAttribute('data-id'); // Получаем значение из атрибута data-id
+            window.location.href = `prog/${vuzId}/`; // Перенаправляем на новую ссылку
         });
     });
-    </script>
+});
+</script>
 
-    
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-        const table = document.getElementById("vuzTable");
-        const headers = table.querySelectorAll("th");
-        const tbody = table.querySelector("tbody");
-        const nameInput = document.getElementById("nameSearch");
 
-        headers.forEach((header, index) => {
-                if (index !== 3) { // Отключаем сортировку для столбца "Наименование"
-                    header.style.cursor = "pointer";
-                    header.addEventListener("click", () => {
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+    const table = document.getElementById("vuzTable");
+    const headers = table.querySelectorAll("th");
+    const tbody = table.querySelector("tbody");
+    const nameInput = document.getElementById("nameSearch");
+
+    headers.forEach((header, index) => {
+            if (index !== 3) { // Отключаем сортировку для столбца "Наименование"
+                header.style.cursor = "pointer";
+                header.addEventListener("click", () => {
+                    sortTableByColumn(table, index);
+                });
+            } else {
+                header.addEventListener("click", (event) => {
+                    if (event.target !== nameInput) {
                         sortTableByColumn(table, index);
-                    });
-                } else {
-                    header.addEventListener("click", (event) => {
-                        if (event.target !== nameInput) {
-                            sortTableByColumn(table, index);
-                        }
-                    });
-                }
-            });
-        // Сортировка таблицы
-        function sortTableByColumn(table, columnIndex) {
-            const rows = Array.from(tbody.querySelectorAll("tr"));
-            const isAscending = table.dataset.sortOrder !== "asc";
-            
-            rows.sort((rowA, rowB) => {
-                const cellA = rowA.cells[columnIndex].textContent.trim();
-                const cellB = rowB.cells[columnIndex].textContent.trim();
-                
-                const isNumeric = !isNaN(cellA) && !isNaN(cellB);
-                if (isNumeric) {
-                    return isAscending ? cellA - cellB : cellB - cellA;
-                }
-                return isAscending ? cellA.localeCompare(cellB) : cellB.localeCompare(cellA);
-            });
-            
-            tbody.innerHTML = "";
-            rows.forEach(row => tbody.appendChild(row));
-            
-            table.dataset.sortOrder = isAscending ? "asc" : "desc";
-        }
-    });
-    </script>
-
-    <script>
-        // Контекстный поиск
-        document.addEventListener("DOMContentLoaded", function() {
-            const input = document.getElementById("nameSearch");
-            const suggestions = document.getElementById("suggestions");
-            const names = new Set([...document.querySelectorAll(".vuz-name")].map(el => el.textContent.trim()));
-            const nameArray = Array.from(names).sort();
-
-            input.addEventListener("input", function() {
-                const value = this.value.toLowerCase();
-                suggestions.innerHTML = "";
-                if (value) {
-                    const filtered = nameArray.filter(name => name.toLowerCase().includes(value));
-                    filtered.sort();
-                    filtered.forEach(name => {
-                        const item = document.createElement("div");
-                        item.classList.add("dropdown-item");
-                        item.textContent = name;
-                        item.addEventListener("click", function() {
-                            input.value = name;
-                            suggestions.innerHTML = "";
-                            filterTable(name);
-                        });
-                        suggestions.appendChild(item);
-                    });
-                    suggestions.style.display = filtered.length ? "block" : "none";
-                } else {
-                    suggestions.style.display = "none";
-                }
-            });
-
-            document.addEventListener("click", function(event) {
-                if (!input.contains(event.target) && !suggestions.contains(event.target)) {
-                    suggestions.style.display = "none";
-                }
-            });
-
-            function filterTable(name) {
-                document.querySelectorAll("#vuzTableBody tr").forEach(row => {
-                    const cell = row.querySelector(".vuz-name");
-                    if (cell) {
-                        row.style.display = cell.textContent.trim() === name ? "" : "none";
                     }
                 });
             }
         });
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+    // Сортировка таблицы
+    function sortTableByColumn(table, columnIndex) {
+        const rows = Array.from(tbody.querySelectorAll("tr"));
+        const isAscending = table.dataset.sortOrder !== "asc";
+        
+        rows.sort((rowA, rowB) => {
+            const cellA = rowA.cells[columnIndex].textContent.trim();
+            const cellB = rowB.cells[columnIndex].textContent.trim();
+            
+            const isNumeric = !isNaN(cellA) && !isNaN(cellB);
+            if (isNumeric) {
+                return isAscending ? cellA - cellB : cellB - cellA;
+            }
+            return isAscending ? cellA.localeCompare(cellB) : cellB.localeCompare(cellA);
+        });
+        
+        tbody.innerHTML = "";
+        rows.forEach(row => tbody.appendChild(row));
+        
+        table.dataset.sortOrder = isAscending ? "asc" : "desc";
+    }
+});
+</script>
+
+<script>
+    // Контекстный поиск
+    document.addEventListener("DOMContentLoaded", function() {
+        const input = document.getElementById("nameSearch");
+        const suggestions = document.getElementById("suggestions");
+        const names = new Set([...document.querySelectorAll(".vuz-name")].map(el => el.textContent.trim()));
+        const nameArray = Array.from(names).sort();
+
+        input.addEventListener("input", function() {
+            const value = this.value.toLowerCase();
+            suggestions.innerHTML = "";
+            if (value) {
+                const filtered = nameArray.filter(name => name.toLowerCase().includes(value));
+                filtered.sort();
+                filtered.forEach(name => {
+                    const item = document.createElement("div");
+                    item.classList.add("dropdown-item");
+                    item.textContent = name;
+                    item.addEventListener("click", function() {
+                        input.value = name;
+                        suggestions.innerHTML = "";
+                        filterTable(name);
+                    });
+                    suggestions.appendChild(item);
+                });
+                suggestions.style.display = filtered.length ? "block" : "none";
+            } else {
+                suggestions.style.display = "none";
+            }
+        });
+
+        document.addEventListener("click", function(event) {
+            if (!input.contains(event.target) && !suggestions.contains(event.target)) {
+                suggestions.style.display = "none";
+            }
+        });
+
+        function filterTable(name) {
+            document.querySelectorAll("#vuzTableBody tr").forEach(row => {
+                const cell = row.querySelector(".vuz-name");
+                if (cell) {
+                    row.style.display = cell.textContent.trim() === name ? "" : "none";
+                }
+            });
+        }
+    });
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
 </html>
