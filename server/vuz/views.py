@@ -71,18 +71,18 @@ def field_stat(request, field_id):
     return render(request, "vuz/prog_stat.html", context)
 
 def analitic_districts_get(request):
-    field_id = request.GET.get("field_id")
-    if not field_id:
-        fields = Training.objects.all().values("fieldname", "fieldid")
-        context = {
-            "fields": fields
-        }
-        return render(request, "vuz/analitic_districts.html", context=context)
-    
-    field = get_object_or_404(Training, pk=field_id)
-    
+    field_id = request.GET.get("field_id", '')
+
+    filter_condition = {}
+
+    if field_id:
+        field = Training.objects.get(pk=field_id)
+        filter_condition['fieldid'] = field_id
+    else:
+        field = ''
+
     main_obj = (
-        Main.objects.filter(fieldid=field_id, )
+        Main.objects.filter(**filter_condition)
         .values("id_vuz__id_district__id_district", "id_vuz__id_district__district")
         .exclude(id_vuz__id_district__id_district=9999) 
         .annotate(
@@ -95,6 +95,23 @@ def analitic_districts_get(request):
             zaoch_avg=Cast(Avg('course1', filter=Q(formname='заочная'), default=Value(0)), IntegerField()),
             zaoch_min=Min('course1', filter=Q(formname='заочная'), default=Value(0)),
             zaoch_max=Max('course1', filter=Q(formname='заочная'), default=Value(0))
+            
+        )
+    )
+
+    overall_results = (
+        Main.objects.filter(**filter_condition)
+        .exclude(id_vuz__id_district__id_district=9999)
+        .aggregate(
+            overall_och_avg=Cast(Avg('course1', filter=Q(formname='очная'), default=Value(0)), IntegerField()),
+            overall_och_min=Min('course1', filter=Q(formname='очная'), default=Value(0)),
+            overall_och_max=Max('course1', filter=Q(formname='очная'), default=Value(0)),
+            overall_ochzaoch_avg=Cast(Avg('course1', filter=Q(formname='очно-заочная'), default=Value(0)), IntegerField()),
+            overall_ochzaoch_min=Min('course1', filter=Q(formname='очно-заочная'), default=Value(0)),
+            overall_ochzaoch_max=Max('course1', filter=Q(formname='очно-заочная'), default=Value(0)),
+            overall_zaoch_avg=Cast(Avg('course1', filter=Q(formname='заочная'), default=Value(0)), IntegerField()),
+            overall_zaoch_min=Min('course1', filter=Q(formname='заочная'), default=Value(0)),
+            overall_zaoch_max=Max('course1', filter=Q(formname='заочная'), default=Value(0))
         )
     )
 
@@ -103,6 +120,7 @@ def analitic_districts_get(request):
     context = {
         "fields": fields,
         "field": field,
+        "overall_results": overall_results,
         "main_obj": main_obj,
     }
     return render(request, "vuz/analitic_districts.html", context)

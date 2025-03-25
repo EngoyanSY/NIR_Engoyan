@@ -110,13 +110,14 @@
         {% if field %}
             <h2 style="margin: 5px 10px; width: 80%; font-size: 1.4em;">{{ field.fieldid }} {{ field.fieldname }}</h2>
         {% else %}
-            <h2 style="margin: 5px 10px; width: 80%; font-size: 1.4em;"><p>Нет данных</p></h2>
+            <h2 style="margin: 5px 10px; width: 80%; font-size: 1.4em;">Все программы</h2>
         {% endif %}
         <form method="get" class="mb-4">
             <div class="d-flex align-items-end gap-2">
                 <div class="custom-select-container">
-                    <select class="form-select" name="field_id" id="field_id" required>
-                        <option value="">Направление подготовки</option>
+                    <select class="form-select" name="field_id" id="field_id">
+                        <option value="" selected disabled hidden>Направления подготовки</option>
+                        <option value="">Все программы</option>
                         {% for field in fields %}
                             <option value="{{ field.fieldid }}">{{ field.fieldid }} {{ field.fieldname }}</option>
                         {% endfor %}
@@ -169,6 +170,20 @@
                         <td colspan="11" class="text-center">Данные отсутствуют</td>
                     </tr>
                     {% endfor %}
+
+                    <tr class="table-info">
+                        <td><strong>Общие</strong></td>
+                        <td><strong>Итого</strong></td>
+                        <td>{{ overall_results.overall_och_avg }}</td>
+                        <td>{{ overall_results.overall_och_min }}</td>
+                        <td>{{ overall_results.overall_och_max }}</td>
+                        <td>{{ overall_results.overall_ochzaoch_avg }}</td>
+                        <td>{{ overall_results.overall_ochzaoch_min }}</td>
+                        <td>{{ overall_results.overall_ochzaoch_max }}</td>
+                        <td>{{ overall_results.overall_zaoch_avg }}</td>
+                        <td>{{ overall_results.overall_zaoch_min }}</td>
+                        <td>{{ overall_results.overall_zaoch_max }}</td>
+                    </tr>
                 </tbody>
             </table>
         </div>
