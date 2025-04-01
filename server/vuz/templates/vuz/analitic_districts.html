@@ -22,7 +22,7 @@
             justify-content: space-between;
             align-items: center;
             padding: 0 20px;
-            z-index: 1000;
+            z-index: 9000;
             text-align: center;
             line-height: 60px;
             font-size: 1.4em;
@@ -37,7 +37,9 @@
         .container-fluid {
             height: 100vh;
             padding: 0px;
-            overflow: hidden;
+            padding-bottom: 100px;
+            overflow-y: scroll;
+            overflow-x: hidden;
         }
 
     </style>
@@ -48,7 +50,7 @@
     </div>
 
     <!-- Кнопка меню -->
-    <div class="btn-group dropstart" style="position: fixed; top: 10px; right: 10px; z-index: 1000;">
+    <div class="btn-group dropstart" style="position: fixed; top: 10px; right: 10px; z-index: 9999;">
         <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
             Меню
         </button>
@@ -215,9 +217,73 @@
                 </tbody>
             </table>
         </div>
+
+        <div style="width: 1600px; height: 500px;">
+            <canvas id="chartCanvas"></canvas>
+        </div>
+
     </div>
 
 </body>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const table = document.getElementById("progStatTable");
+        let labels = [], values = [], backgroundColors = [];
+
+        for (let i = 1; i < table.rows.length; i++) {
+            let districtName = table.rows[i].cells[1].textContent.trim();
+            let avgValue = parseFloat(table.rows[i].cells[2].textContent.replace(",", "."));
+
+            if (!isNaN(avgValue)) { 
+                labels.push(districtName);
+                values.push(avgValue);
+
+                if (districtName.toLowerCase() === "итого") {
+                    backgroundColors.push("rgba(255, 0, 0, 0.6)");
+                } else {
+                    backgroundColors.push("rgba(75, 192, 192, 0.6)");
+                }
+            }
+        }
+
+        const ctx = document.getElementById("chartCanvas").getContext("2d");
+
+        if (labels.length > 0 && values.length > 0) {
+            new Chart(ctx, {
+                type: "bar",
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: "Средняя стоимость очной фомы обучения на 1 курсе",
+                        data: values,
+                        backgroundColor: backgroundColors,
+                        borderColor: backgroundColors.map(color => color.replace("0.6", "1")),
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: { beginAtZero: true }
+                    },
+                    plugins: {
+                        tooltip: { enabled: true },
+                        datalabels: {
+                            anchor: 'end',
+                            align: 'top',
+                            formatter: (value) => value.toFixed(0),
+                            font: { weight: 'bold' }
+                        }
+                    }
+                },
+                plugins: [ChartDataLabels]
+            });
+        } else {
+            console.warn("Нет корректных данных для построения графика.");
+        }
+    });
+</script>
 
 <script>
     // Ссылка на аналитику по программам
@@ -236,4 +302,6 @@
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
 </html>
