@@ -218,6 +218,15 @@
             </table>
         </div>
 
+        <div class="mb-3">
+            <label for="chartTypeSelect">Выберите форму обучения:</label>
+            <select id="chartTypeSelect" class="form-select" style="max-width: 200px;">
+                <option value="och_avg">Очная</option>
+                <option value="ochzaoch_avg">Очно-заочная</option>
+                <option value="zaoch_avg">Заочная</option>
+            </select>
+        </div>
+
         <div style="width: 1600px; height: 500px;">
             <canvas id="chartCanvas"></canvas>
         </div>
@@ -229,33 +238,50 @@
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         const table = document.getElementById("progStatTable");
-        let labels = [], values = [], backgroundColors = [];
+        const select = document.getElementById("chartTypeSelect");
+        const ctx = document.getElementById("chartCanvas").getContext("2d");
+        let chart;
 
-        for (let i = 1; i < table.rows.length; i++) {
-            let districtName = table.rows[i].cells[1].textContent.trim();
-            let avgValue = parseFloat(table.rows[i].cells[2].textContent.replace(",", "."));
+        function createChart(type) {
+            let labels = [], values = [], backgroundColors = [];
 
-            if (!isNaN(avgValue)) { 
-                labels.push(districtName);
-                values.push(avgValue);
+            const columnIndex = {
+                och_avg: 2,
+                ochzaoch_avg: 5,
+                zaoch_avg: 8
+            }[type];
 
-                if (districtName.toLowerCase() === "итого") {
-                    backgroundColors.push("rgba(255, 0, 0, 0.6)");
-                } else {
-                    backgroundColors.push("rgba(75, 192, 192, 0.6)");
+            for (let i = 1; i < table.rows.length; i++) {
+                let districtName = table.rows[i].cells[1].textContent.trim();
+                let avgValue = parseFloat(table.rows[i].cells[columnIndex].textContent.replace(",", "."));
+
+                if (!isNaN(avgValue)) { 
+                    labels.push(districtName);
+                    values.push(avgValue);
+
+                    // Если это строка "Итого", окрашиваем в красный
+                    if (districtName.toLowerCase() === "итого") {
+                        backgroundColors.push("rgba(255, 0, 0, 0.6)"); // Красный
+                    } else {
+                        backgroundColors.push({
+                            och_avg: "rgba(54, 162, 235, 0.6)", // Синий
+                            ochzaoch_avg: "rgba(75, 192, 192, 0.6)", // Зелёный
+                            zaoch_avg: "rgba(153, 102, 255, 0.6)" // Фиолетовый
+                        }[type]);
+                    }
                 }
             }
-        }
 
-        const ctx = document.getElementById("chartCanvas").getContext("2d");
+            if (chart) {
+                chart.destroy();
+            }
 
-        if (labels.length > 0 && values.length > 0) {
-            new Chart(ctx, {
+            chart = new Chart(ctx, {
                 type: "bar",
                 data: {
                     labels: labels,
                     datasets: [{
-                        label: "Средняя стоимость очной фомы обучения на 1 курсе",
+                        label: `Средняя стоимость на 1 курсе (${select.options[select.selectedIndex].text} форма)`,
                         data: values,
                         backgroundColor: backgroundColors,
                         borderColor: backgroundColors.map(color => color.replace("0.6", "1")),
@@ -272,16 +298,22 @@
                         datalabels: {
                             anchor: 'end',
                             align: 'top',
-                            formatter: (value) => value.toFixed(0),
+                            formatter: (value) => value.toFixed(1),
                             font: { weight: 'bold' }
                         }
                     }
                 },
                 plugins: [ChartDataLabels]
             });
-        } else {
-            console.warn("Нет корректных данных для построения графика.");
         }
+
+        // Инициализация графика
+        createChart("och_avg");
+
+        // Смена типа гистограммы при изменении выбора
+        select.addEventListener("change", function () {
+            createChart(this.value);
+        });
     });
 </script>
 
