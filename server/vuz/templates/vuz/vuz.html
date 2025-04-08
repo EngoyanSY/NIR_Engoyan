@@ -445,45 +445,82 @@ document.addEventListener('DOMContentLoaded', function() {
     document.addEventListener("DOMContentLoaded", function() {
         const input = document.getElementById("nameSearch");
         const suggestions = document.getElementById("suggestions");
+        
+        // Собираем данные о названиях вузов
         const names = new Set([...document.querySelectorAll(".vuz-name")].map(el => el.textContent.trim()));
-        const nameArray = Array.from(names).sort();
+        const nameArray = Array.from(names).sort(); // Сортировка по алфавиту
 
         input.addEventListener("input", function() {
             const value = this.value.toLowerCase();
             suggestions.innerHTML = "";
+            
             if (value) {
+                // Фильтруем названия по частичному совпадению
                 const filtered = nameArray.filter(name => name.toLowerCase().includes(value));
                 filtered.sort();
+                
                 filtered.forEach(name => {
                     const item = document.createElement("div");
                     item.classList.add("dropdown-item");
-                    item.textContent = name;
+                    item.textContent = name; // Только название
                     item.addEventListener("click", function() {
-                        input.value = name;
+                        input.value = name; // Заполняем поле выбранным названием
                         suggestions.innerHTML = "";
-                        filterTable(name);
+                        filterTable(name); // Фильтруем по точному совпадению
                     });
                     suggestions.appendChild(item);
                 });
+                
                 suggestions.style.display = filtered.length ? "block" : "none";
             } else {
                 suggestions.style.display = "none";
             }
         });
 
+        // Обработчик нажатия Enter
+        input.addEventListener("keydown", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault(); // Предотвращаем стандартное поведение
+                const value = this.value.trim().toLowerCase();
+                
+                if (!value) { // Если поле пустое
+                    resetNameFilter(); // Сбрасываем фильтр
+                } else { // Если есть текст
+                    filterTableByInput(value); // Фильтруем по введенной строке
+                }
+                suggestions.style.display = "none"; // Скрываем выпадающее меню
+            }
+        });
+
+        // Закрытие выпадающего списка при клике вне его
         document.addEventListener("click", function(event) {
             if (!input.contains(event.target) && !suggestions.contains(event.target)) {
                 suggestions.style.display = "none";
             }
         });
 
+        // Функция фильтрации таблицы по точному совпадению названия
         function filterTable(name) {
             document.querySelectorAll("#vuzTableBody tr").forEach(row => {
-                const cell = row.querySelector(".vuz-name");
-                if (cell) {
-                    row.style.display = cell.textContent.trim() === name ? "" : "none";
-                }
+                const rowName = row.querySelector(".vuz-name").textContent.trim();
+                row.style.display = rowName === name ? "" : "none";
             });
+        }
+
+        // Функция фильтрации таблицы по введенной строке (частичные совпадения)
+        function filterTableByInput(value) {
+            document.querySelectorAll("#vuzTableBody tr").forEach(row => {
+                const rowName = row.querySelector(".vuz-name").textContent.trim().toLowerCase();
+                row.style.display = rowName.includes(value) ? "" : "none";
+            });
+        }
+
+        // Функция сброса фильтра по названию
+        function resetNameFilter() {
+            document.querySelectorAll("#vuzTableBody tr").forEach(row => {
+                row.style.display = ""; // Показываем все строки
+            });
+            input.value = ""; // Очищаем поле ввода
         }
     });
 </script>
