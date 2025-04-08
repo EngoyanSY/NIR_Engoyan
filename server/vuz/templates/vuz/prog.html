@@ -236,7 +236,7 @@
                 <tr data-id="{{ item.fieldid.fieldid }}">
                     <td>{{ forloop.counter }}</td>
                     <td class="program-name">{{ item.fieldid.fieldname }}</td>
-                    <td>{{ item.fieldid.fieldid }}</td>
+                    <td class="program-code">{{ item.fieldid.fieldid }}</td>
                     <td>{{ item.progid.progname }}</td>
                     <!-- <td>{{ item.profile }}</td> -->
                     <td>{{ item.formname }}</td>
@@ -413,45 +413,92 @@
     document.addEventListener("DOMContentLoaded", function() {
         const input = document.getElementById("nameSearch");
         const suggestions = document.getElementById("suggestions");
-        const names = new Set([...document.querySelectorAll(".program-name")].map(el => el.textContent.trim()));
-        const nameArray = Array.from(names).sort();
+        
+        // Собираем данные о программах: код и название
+        const programs = new Set();
+        document.querySelectorAll("#programTableBody tr").forEach(row => {
+            const code = row.querySelector("td:nth-child(3)").textContent.trim(); // Код (3-й столбец)
+            const name = row.querySelector(".program-name").textContent.trim();   // Название (2-й столбец)
+            programs.add({ code, name });
+        });
+        
+        const programArray = Array.from(programs).sort((a, b) => a.code.localeCompare(b.code)); // Сортировка по коду
 
         input.addEventListener("input", function() {
             const value = this.value.toLowerCase();
             suggestions.innerHTML = "";
+            
             if (value) {
-                const filtered = nameArray.filter(name => name.toLowerCase().includes(value));
-                filtered.sort();
-                filtered.forEach(name => {
+                // Фильтруем программы по коду или названию
+                const filtered = programArray.filter(program => 
+                    program.code.toLowerCase().includes(value) || 
+                    program.name.toLowerCase().includes(value)
+                );
+                
+                filtered.forEach(program => {
                     const item = document.createElement("div");
                     item.classList.add("dropdown-item");
-                    item.textContent = name;
+                    item.textContent = `${program.code} ${program.name}`; // Формат: "Код Название"
                     item.addEventListener("click", function() {
-                        input.value = name;
+                        input.value = program.name; // При выборе заполняем поле только названием
                         suggestions.innerHTML = "";
-                        filterTable(name);
+                        filterTable(program.code, program.name); // Фильтруем таблицу по точному совпадению
                     });
                     suggestions.appendChild(item);
                 });
+                
                 suggestions.style.display = filtered.length ? "block" : "none";
             } else {
                 suggestions.style.display = "none";
             }
         });
 
+        // Обработчик нажатия Enter
+        input.addEventListener("keydown", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault(); // Предотвращаем стандартное поведение
+                const value = this.value.trim().toLowerCase();
+                
+                if (!value) { // Если поле пустое
+                    resetNameFilter(); // Сбрасываем фильтр
+                } else { // Если есть текст
+                    filterTableByInput(value); // Фильтруем по введенной строке
+                }
+                suggestions.style.display = "none"; // Скрываем выпадающее меню
+            }
+        });
+
+        // Закрытие выпадающего списка при клике вне его
         document.addEventListener("click", function(event) {
             if (!input.contains(event.target) && !suggestions.contains(event.target)) {
                 suggestions.style.display = "none";
             }
         });
 
-        function filterTable(name) {
+        // Функция фильтрации таблицы по точному совпадению кода и названия
+        function filterTable(code, name) {
             document.querySelectorAll("#programTableBody tr").forEach(row => {
-                const cell = row.querySelector(".program-name");
-                if (cell) {
-                    row.style.display = cell.textContent.trim() === name ? "" : "none";
-                }
+                const rowCode = row.querySelector("td:nth-child(3)").textContent.trim();
+                const rowName = row.querySelector(".program-name").textContent.trim();
+                row.style.display = (rowCode === code && rowName === name) ? "" : "none";
             });
+        }
+
+        // Функция фильтрации таблицы по введенной строке (частичные совпадения)
+        function filterTableByInput(value) {
+            document.querySelectorAll("#programTableBody tr").forEach(row => {
+                const rowCode = row.querySelector("td:nth-child(3)").textContent.trim().toLowerCase();
+                const rowName = row.querySelector(".program-name").textContent.trim().toLowerCase();
+                row.style.display = (rowCode.includes(value) || rowName.includes(value)) ? "" : "none";
+            });
+        }
+
+        // Функция сброса фильтра по названию
+        function resetNameFilter() {
+            document.querySelectorAll("#programTableBody tr").forEach(row => {
+                row.style.display = ""; // Показываем все строки
+            });
+            input.value = ""; // Очищаем поле ввода
         }
     });
 </script>
