@@ -47,11 +47,17 @@ def prog(request, vuz_id):
     fieldname = (
         main_obj.values("fieldid__fieldname").distinct().order_by("fieldid__fieldname")
     )
+
+    fields = (
+        Training.objects.all().values("fieldid", "fieldname").distinct().order_by("fieldname")
+    )
+
     formname = main_obj.values("formname").distinct().order_by("-formname")
     prog = main_obj.values("progid__progname").distinct().order_by("progid__progname")
     context = {
         "main_obj": main_obj,
         "fieldname": fieldname,
+        "fields": fields,
         "formname": formname,
         "prog": prog,
     }
@@ -66,11 +72,16 @@ def field_stat(request, field_id):
         "progid", "id_vuz"
     )
 
+    fields = (
+        Training.objects.all().values("fieldid", "fieldname").distinct().order_by("fieldname")
+    )
+
     formname = main_obj.values("formname").distinct().order_by("-formname")
     vuzname = main_obj.values("id_vuz__name").distinct().order_by("id_vuz__name")
     prog = main_obj.values("progid__progname").distinct().order_by("progid__progname")
     context = {
         "main_obj": main_obj,
+        "fields": fields,
         "formname": formname,
         "vuzname": vuzname,
         "prog": prog,
@@ -122,7 +133,7 @@ def analitic_districts_get(request):
         )
     )
 
-    fields = Training.objects.all().values("fieldname", "fieldid")
+    fields = Training.objects.all().values("fieldname", "fieldid").order_by("fieldname")
     
     context = {
         "fields": fields,

@@ -145,9 +145,14 @@
                         <button type="button" class="btn btn-primary" onclick="window.location.href='/vuz/analitic/district/'">
                             Аналитика по округам
                         </button>
-                        <button type="button" class="btn btn-primary" onclick="window.location.href='#'">
-                            Аналитика по программе
-                        </button>
+                        <div class="mb-3">
+                            <select id="analiticProgSelect" class="form-select analitic">
+                                <option value="">Аналитика по программе</option>
+                                {% for field in fields %}
+                                <option value="{{ field.fieldid }}">{{ field.fieldid }} {{ field.fieldname }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
