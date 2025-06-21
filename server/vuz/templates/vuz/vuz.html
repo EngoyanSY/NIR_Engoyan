@@ -123,7 +123,7 @@
 </head>
 <body>
     <div class="header">
-        Анализ данных по образовательным программам
+        Стоимость платных образовательных услуг в ВУЗах России
     </div>
     
     <!-- Кнопка меню -->
@@ -152,7 +152,7 @@
                         </button>
                         <div class="mb-3">
                             <select id="analiticProgSelect" class="form-select analitic">
-                                <option value="">Аналитика по программе</option>
+                                <option value="">Аналитика по программе обучения</option>
                                 {% for field in fields %}
                                 <option value="{{ field.fieldid }}">{{ field.fieldid }} {{ field.fieldname }}</option>
                                 {% endfor %}

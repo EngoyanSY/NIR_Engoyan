@@ -23,7 +23,7 @@ def vuz(request):
     )
 
     fields = (
-        Training.objects.all().values("fieldid", "fieldname").distinct().order_by("fieldname")
+        Training.objects.all().values("fieldid", "fieldname").distinct().order_by("fieldid")
     )
 
 
@@ -49,7 +49,7 @@ def prog(request, vuz_id):
     )
 
     fields = (
-        Training.objects.all().values("fieldid", "fieldname").distinct().order_by("fieldname")
+        Training.objects.all().values("fieldid", "fieldname").distinct().order_by("fieldid")
     )
 
     formname = main_obj.values("formname").distinct().order_by("-formname")
@@ -133,7 +133,7 @@ def analitic_districts_get(request):
         )
     )
 
-    fields = Training.objects.all().values("fieldname", "fieldid").order_by("fieldname")
+    fields = Training.objects.all().values("fieldname", "fieldid").order_by("fieldid")
     
     context = {
         "fields": fields,
