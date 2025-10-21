@@ -10,3 +10,6 @@ SQLAlchemy==2.0.35
 sqlmodel==0.0.22
 
 Django==4.2.16
+psycopg2-binary==2.9.11
+
+python-decouple==3.8

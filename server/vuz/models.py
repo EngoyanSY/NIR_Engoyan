@@ -48,7 +48,7 @@ class Regions(models.Model):
 class Vuz(models.Model):
     id_listedu = models.IntegerField()
     id_parent = models.IntegerField()
-    fullname = models.CharField(max_length=300)
+    fullname = models.CharField(max_length=500)
     name = models.CharField(max_length=300)
     address = models.CharField(max_length=200)
     rector = models.CharField(max_length=50)
@@ -77,7 +77,7 @@ class Main(models.Model):
         Training, on_delete=models.CASCADE, db_column="fieldid"
     )
     profile = models.CharField(max_length=100)
-    formname = models.CharField(max_length=7)
+    formname = models.CharField(max_length=12)
     course1 = models.IntegerField(null=True)
     course2 = models.IntegerField(null=True)
     course3 = models.IntegerField(null=True)

@@ -1,10 +1,10 @@
 __pycache__/
+
 .idea
 .idea/*
-server/*.sqlite3
-.venv/
-.venv/*
+
+*.sqlite3
+.env
+
 venv/
-venv/*
-www/node_modules
-www/package-lock.json
+env/
