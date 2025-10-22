@@ -24,3 +24,20 @@ pip install -r .\requirements.txt
 ```
 python server/manage.py runserver
 ```
+
+## Дамп
+```
+python server/manage.py dumpdata > db_dump.json
+python server/manage.py dump_utf8 --output=correct_dump.json
+```
+
+## Докер
+```
+docker-compose up --build
+docker-compose exec web python server/manage.py loaddata /app/db_dump.json
+```
+
+## Включение сервера
+```
+ssh -R 80:localhost:8000 serveo.net
+```

@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 from pathlib import Path
 import os
 from decouple import config
+from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -27,7 +28,28 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1').split(',')
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    '192.168.1.100',
+    '109.252.215.195',
+    '2a00:1370:81aa:7368:844d:c3c8:65c6:64d4',
+    '0.0.0.0',
+    'web',
+    '*',
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://a9fb5fe8c55f0d8f562a8cca49eb6ede.serveo.net',
+    'http://a9fb5fe8c55f0d8f562a8cca49eb6ede.serveo.net',
+]
+
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+
+# Отключить CSRF для тестирования (ВРЕМЕННО!)
+CSRF_COOKIE_SECURE = False
+SESSION_COOKIE_SECURE = False
 
 
 # Application definition
@@ -126,6 +148,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = "static/"
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
