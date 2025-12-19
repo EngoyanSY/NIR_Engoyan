@@ -18,9 +18,16 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.shortcuts import redirect
+from django.http import HttpResponse
+
+def health_check(request):
+    return HttpResponse("OK")
+
+urlpatterns += [path('health/', health_check)]
 
 urlpatterns = [
     path("", lambda request: redirect('vuz/')),
     path("vuz/", include("vuz.urls")),
     path("admin/", admin.site.urls),
+    path('health/', health_check),
 ]
