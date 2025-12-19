@@ -20,6 +20,6 @@ COPY . .
 
 EXPOSE 8000
 
-CMD sh -c "python server/manage.py migrate && \
-           python server/manage.py collectstatic --noinput && \
-           gunicorn server.wsgi:application --bind 0.0.0.0:8000"
+CMD sh -c "python nir/manage.py migrate && \
+           python nir/manage.py collectstatic --noinput && \
+           gunicorn nir.wsgi:application --bind 0.0.0.0:8000"
