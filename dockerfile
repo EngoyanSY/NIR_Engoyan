@@ -1,7 +1,6 @@
 FROM python:3.11-slim
 
-WORKDIR /app
-
+# Устанавливаем необходимые системные зависимости для psycopg2
 RUN apt-get update && apt-get install -y \
     gcc \
     python3-dev \
@@ -9,15 +8,17 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
+# Копируем всё в /app
+COPY . /app
+
+WORKDIR /app/server
+
+# Устанавливаем Python-зависимости
 COPY requirements.txt .
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
-COPY . .
-
-# Собираем статические файлы
-# RUN python server/manage.py collectstatic --noinput
-
 EXPOSE 8000
 
-CMD ["sh", "-c", "python server/manage.py migrate && python server/manage.py collectstatic --noinput && gunicorn nir.wsgi:application --bind 0.0.0.0:8000"]
+# Запуск: миграции → статика → gunicorn
+CMD ["sh", "-c", "python manage.py migrate && python manage.py collectstatic --noinput && gunicorn nir.wsgi:application --bind 0.0.0.0:8000"]
