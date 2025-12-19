@@ -16,8 +16,10 @@ RUN pip install -r requirements.txt
 COPY . .
 
 # Собираем статические файлы
-RUN python server/manage.py collectstatic --noinput
+# RUN python server/manage.py collectstatic --noinput
 
 EXPOSE 8000
 
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "nir.wsgi:application"]
+CMD sh -c "python server/manage.py migrate && \
+           python server/manage.py collectstatic --noinput && \
+           gunicorn server.wsgi:application --bind 0.0.0.0:8000"
