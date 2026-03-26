@@ -3,7 +3,10 @@ __pycache__/
 .idea
 .idea/*
 
+*.json
+
 *.sqlite3
+*.sqlite3-journal
 .env
 
 venv/

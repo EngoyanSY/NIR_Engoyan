@@ -37,6 +37,13 @@ docker-compose up --build
 docker-compose exec web python server/manage.py loaddata /app/db_dump.json
 ```
 
+## Загрузка данных в БД
+```
+python manage.py flush --noinput
+python manage.py migrate
+python manage.py collectstatic --noinput
+python manage.py loaddata db_dump.json
+```
 ## Включение сервера
 ```
 ssh -R 80:localhost:8000 serveo.net
