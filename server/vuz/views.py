@@ -37,13 +37,13 @@ def vuz(request):
     return render(request, "vuz/vuz.html", context)
 
 
-def prog(request, vuz_id):
+def prog(request, vuz_id, year):
     vuz = Vuz.objects.get(pk=vuz_id)
     vuzid = vuz.id
 
-    main_obj = Main.objects.filter(id_vuz=vuzid).select_related(
+    main_obj = Main.objects.filter(id_vuz=vuzid, year=year).select_related(
         "fieldid", "progid", "id_vuz"
-    )
+    ).order_by("fieldid", "-formname", "profile")
     fieldname = (
         main_obj.values("fieldid__fieldname").distinct().order_by("fieldid__fieldname")
     )
@@ -63,14 +63,14 @@ def prog(request, vuz_id):
     }
     return render(request, "vuz/prog.html", context)
 
-def field_stat(request, field_id):
+def field_stat(request, field_id, year):
     field = Training.objects.get(pk=field_id)
     fieldid = field.fieldid
     print(fieldid)
 
-    main_obj = Main.objects.filter(fieldid=fieldid).select_related(
+    main_obj = Main.objects.filter(fieldid=fieldid, year=year).select_related(
         "progid", "id_vuz"
-    )
+    ).order_by("id_vuz__name")
 
     fields = (
         Training.objects.all().values("fieldid", "fieldname").distinct().order_by("fieldname")
@@ -88,7 +88,7 @@ def field_stat(request, field_id):
     }
     return render(request, "vuz/prog_stat.html", context)
 
-def analitic_districts_get(request):
+def analitic_districts_get(request, year):
     field_id = request.GET.get("field_id", '')
 
     filter_condition = {}
@@ -100,7 +100,7 @@ def analitic_districts_get(request):
         field = ''
 
     main_obj = (
-        Main.objects.filter(**filter_condition)
+        Main.objects.filter(**filter_condition, year=year)
         .values("id_vuz__id_district__id_district", "id_vuz__id_district__district")
         .exclude(id_vuz__id_district__id_district=9999) 
         .annotate(

@@ -42,7 +42,7 @@ docker-compose exec web python server/manage.py loaddata /app/db_dump.json
 python manage.py flush --noinput
 python manage.py migrate
 python manage.py collectstatic --noinput
-python manage.py loaddata db_dump.json
+python manage.py loaddata db_dump.json --exclude=contenttypes.contenttype
 ```
 ## Включение сервера
 ```

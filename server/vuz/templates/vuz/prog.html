@@ -121,15 +121,31 @@
     </div>
 
     <!-- Кнопка меню -->
-    <div class="btn-group dropstart" style="position: fixed; top: 10px; right: 10px; z-index: 1000;">
-        <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-            Меню
-        </button>
-        <ul class="dropdown-menu" style="overflow-y: hidden;">
-            <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#filterModal">Фильтр</a></li>
-            <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#analyticsModal">Аналитика</a></li>
-            <li><a class="dropdown-item" href="#" onclick="window.location.href='/vuz/'">Главная</a></li>
-        </ul>
+    <div style="position: fixed; top: 10px; right: 10px; z-index: 1000; display: flex; gap: 10px;">
+    
+        <!-- Кнопка Год -->
+        <div class="btn-group">
+            <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                Год: <span id="currentYear">2025</span>
+            </button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item year-select" href="#" data-year="2023">2023</a></li>
+                <li><a class="dropdown-item year-select" href="#" data-year="2024">2024</a></li>
+                <li><a class="dropdown-item year-select" href="#" data-year="2025">2025</a></li>
+            </ul>
+        </div>
+    
+        <!-- Кнопка меню -->
+        <div class="btn-group dropstart">
+            <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                Меню
+            </button>
+            <ul class="dropdown-menu" style="overflow-y: hidden;">
+                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#filterModal">Фильтр</a></li>
+                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#analyticsModal">Аналитика</a></li>
+                <li><a class="dropdown-item" href="#" onclick="window.location.href='/vuz/'">Главная</a></li>
+            </ul>
+        </div>
     </div>
 
     <!-- Модальное окно для Аналитики -->
@@ -142,7 +158,7 @@
                 </div>
                 <div class="modal-body">
                     <div class="d-grid gap-2">
-                        <button type="button" class="btn btn-primary" onclick="window.location.href='/vuz/analitic/district/'">
+                        <button type="button" class="btn btn-primary" onclick="window.location.href='/vuz/2025/analitic/district/'">
                             Аналитика по округам
                         </button>
                         <div class="mb-3">
@@ -224,7 +240,7 @@
                     </th>
                     <th>Код</th>
                     <th>Уровень</th>
-                    <!-- <th>Профиль</th> -->
+                    <th>Профиль</th>
                     <th>Форма</th>
                     <th style="font-size: 0.8em;">Курс 1</th>
                     <th style="font-size: 0.8em;">Курс 2</th>
@@ -242,7 +258,7 @@
                     <td class="program-name">{{ item.fieldid.fieldname }}</td>
                     <td class="program-code">{{ item.fieldid.fieldid }}</td>
                     <td>{{ item.progid.progname }}</td>
-                    <!-- <td>{{ item.profile }}</td> -->
+                    <td>{{ item.profile }}</td>
                     <td>{{ item.formname }}</td>
                     <td>{% if item.course1 %}{{ item.course1 }}{% endif %}</td>
                     <td>{% if item.course2 %}{{ item.course2 }}{% endif %}</td>
@@ -265,6 +281,47 @@
 </body>
 
 <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const currentYearSpan = document.getElementById('currentYear');
+        const yearLinks = document.querySelectorAll('.year-select');
+
+        // === Определяем текущий год из URL ===
+        function getCurrentYearFromUrl() {
+            const url = window.location.href;
+            const match = url.match(/\/vuz\/(\d{4})\//);
+            return match ? match[1] : '2025';   // если не нашли — fallback на 2025
+        }
+
+        // Устанавливаем правильный год при загрузке страницы
+        const currentYear = getCurrentYearFromUrl();
+        currentYearSpan.textContent = currentYear;
+
+        yearLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const selectedYear = this.getAttribute('data-year');
+                
+                // Получаем текущий URL
+                let currentUrl = window.location.href;
+                
+                // Убираем возможный # в конце
+                currentUrl = currentUrl.split('#')[0];
+                
+                // Заменяем год
+                const newUrl = currentUrl.replace(/\/vuz\/\d{4}\//, `/vuz/${selectedYear}/`);
+                
+                // Обновляем текст на кнопке
+                currentYearSpan.textContent = selectedYear;
+                
+                // Переходим на новый URL (GET-запрос как при обычной загрузке страницы)
+                window.location.href = newUrl;
+            });
+        });
+    });
+</script>
+
+<script>
     // Ссылка на аналитику по программам
     document.addEventListener('DOMContentLoaded', function() {
         const select = document.getElementById('analiticProgSelect');
@@ -272,7 +329,7 @@
         select.addEventListener('change', function() {
             const fieldId = this.value; // Получаем выбранное значение
             if (fieldId) { // Проверяем, что выбрана не пустая опция
-                window.location.href = `/vuz/analitic/prog/${fieldId}/`;
+                window.location.href = `/vuz/2025/analitic/prog/${fieldId}/`;
             }
         });
     });
