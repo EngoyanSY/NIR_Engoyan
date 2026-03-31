@@ -237,8 +237,8 @@
                         <input type="text" id="nameSearch" class="form-control name" placeholder="Наименование ВУЗа">
                         <div id="suggestions" class="dropdown-menu"></div>
                     </th>
-                    <th>Профиль</th>
                     <th>Форма</th>
+                    <th>Профиль</th>
                     <th style="font-size: 0.8em;">Курс 1</th>
                     <th style="font-size: 0.8em;">Курс 2</th>
                     <th style="font-size: 0.8em;">Курс 3</th>
@@ -253,8 +253,8 @@
                 <tr>
                     <td>{{ forloop.counter }}</td>
                     <td class="vuz-name">{{ item.id_vuz.name }}</td>
-                    <td>{{ item.profile }}</td>
                     <td>{{ item.formname }}</td>
+                    <td>{{ item.profile }}</td>
                     <td>{% if item.course1 %}{{ item.course1 }}{% endif %}</td>
                     <td>{% if item.course2 %}{{ item.course2 }}{% endif %}</td>
                     <td>{% if item.course3 %}{{ item.course3 }}{% endif %}</td>

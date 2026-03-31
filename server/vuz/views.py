@@ -37,6 +37,11 @@ def vuz(request):
     return render(request, "vuz/vuz.html", context)
 
 
+def vuz_info(request, vuz_id):
+    vuz = Vuz.objects.get(pk=vuz_id)
+    context = {"vuz": vuz}
+    return render(request, "vuz/vuz_info.html", context)
+
 def prog(request, vuz_id, year):
     vuz = Vuz.objects.get(pk=vuz_id)
     vuzid = vuz.id

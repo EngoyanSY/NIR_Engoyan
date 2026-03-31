@@ -230,7 +230,7 @@
                         <th class="hidden-column">id_listedu</th>
                         <th class="hidden-column">id_parent</th>
                         <th>
-                            <input type="text" id="nameSearch" class="form-control name" placeholder="Наименование">
+                            <input type="text" id="nameSearch" class="form-control name" autocomplete="off" placeholder="Наименование">
                             <div id="suggestions" class="dropdown-menu"></div>
                         </th>
                         <th>Округ</th>
@@ -388,7 +388,7 @@ document.addEventListener('DOMContentLoaded', function() {
     rows.forEach(row => {
         row.addEventListener('dblclick', function() {
             const vuzId = this.getAttribute('data-id'); // Получаем значение из атрибута data-id
-            window.location.href = `2025/prog/${vuzId}/`; // Перенаправляем на новую ссылку
+            window.location.href = `${vuzId}/`; // Перенаправляем на новую ссылку
         });
     });
 });
