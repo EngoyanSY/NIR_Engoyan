@@ -15,7 +15,7 @@
             background-color: #212529;
             color: #fff;
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
             padding: 0 20px;
             z-index: 1000;
@@ -163,7 +163,12 @@
                 <button class="btn btn-primary btn-lg" 
                         id="progButton"
                         data-vuz-id="{{ vuz.id }}">
-                    Перейти к списку программ обучения
+                    Список программ обучения
+                </button>
+                <button class="btn btn-primary btn-lg" 
+                        id="profitButton"
+                        data-vuz-id="{{ vuz.id }}">
+                    Анализ прибыльности
                 </button>
                 </div>
 
@@ -179,7 +184,11 @@
         const vuzId = this.getAttribute('data-vuz-id');
         window.location.href = `/vuz/2025/prog/${vuzId}`;
     });
-    </script>
+    document.getElementById('profitButton').addEventListener('click', function() {
+        const vuzId = this.getAttribute('data-vuz-id');
+        window.location.href = `/vuz/2025/${vuzId}/profit/`;
+    });
+</script>
 
     
 </html>
