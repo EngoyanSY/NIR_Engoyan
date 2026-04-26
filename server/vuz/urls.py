@@ -9,4 +9,5 @@ urlpatterns = [
     path("<int:year>/prog/<int:vuz_id>/", views.prog, name="prog_view"),
     path("<int:year>/analitic/prog/", views.field_stat, name="prog_stat_view"),
     path("<int:year>/analitic/district/", views.analitic_districts_get, name="analitic_districts_view"),
+    path("analitic/price/", views.analitic_price, name="analitic_price_view"),
 ]

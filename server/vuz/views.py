@@ -2,10 +2,14 @@ from django.shortcuts import render, get_object_or_404
 from django.db.models import Min, Max, Avg, Q, IntegerField,  Value
 from django.db.models import F, Sum, BigIntegerField, DecimalField, ExpressionWrapper
 from django.db.models.functions import Cast
+import json
 from .models import (
     Main,
     Vuz,
     Training,
+    Districts,
+    Regions,
+    Ministries,
 )
 
 
@@ -263,3 +267,112 @@ def analitic_districts_get(request, year):
         "main_obj": main_obj,
     }
     return render(request, "vuz/analitic_districts.html", context)
+
+def analitic_price(request):
+    # 1. Получаем параметры из GET-запроса
+    field_id = request.GET.get("field_id")
+    district_id = request.GET.get("district_id")
+    region_id = request.GET.get("region_id")
+    year_from = request.GET.get("year_from")
+    year_to = request.GET.get("year_to")
+
+    # 2. Данные для выпадающих списков
+    districts = Districts.objects.all().exclude(id_district=9999)
+    regions = Regions.objects.all()
+    fields = Training.objects.all()
+
+    # 3. Формируем базовый фильтр
+    filter_condition = {}
+    
+    if field_id:
+        filter_condition['fieldid'] = field_id
+    
+    # ВАЖНО: используем __id_district_id, так как фильтруем через связь FK
+    if district_id and district_id != '9999':
+        filter_condition['id_vuz__id_district_id'] = int(district_id)
+        
+    if region_id:
+        filter_condition['id_vuz__id_region_id'] = int(region_id)
+
+    yearly_stats = []
+
+    # 4. Основной цикл расчетов
+    if year_from and year_to:
+        y_start = int(year_from)
+        y_end = int(year_to)
+
+        for year in range(y_start, y_end + 1):
+            current_filter = filter_condition.copy()
+            current_filter['year'] = year
+            
+            # Агрегируем среднюю стоимость
+            avg_price = Main.objects.filter(**current_filter).aggregate(Avg('course1'))['course1__avg']
+            
+            # Текущие данные за год
+            current_data = {
+                'year': year,
+                'price': float(avg_price) if avg_price else 0,
+                'diff_price': 0,
+                'diff_percent': 0
+            }
+
+            # 5. Расчет динамики (сравнение с предыдущим годом в списке)
+            if len(yearly_stats) > 0:
+                prev_year_data = yearly_stats[-1]
+                if current_data['price'] and prev_year_data['price']:
+                    diff = current_data['price'] - prev_year_data['price']
+                    percent = (diff / prev_year_data['price']) * 100
+                    current_data['diff_price'] = diff
+                    current_data['diff_percent'] = percent
+
+            yearly_stats.append(current_data)
+
+    # 6. Расчет итоговых показателей за весь период
+    overall_stats = None
+    if len(yearly_stats) > 1:
+        first = yearly_stats[0]
+        last = yearly_stats[-1]
+        if first['price'] > 0:
+            overall_diff = last['price'] - first['price']
+            overall_stats = {
+                'diff': overall_diff,
+                'percent': (overall_diff / first['price']) * 100
+            }
+    
+    # 7. Создание связей
+    connections = {}
+    valid_combinations = Main.objects.values(
+        'fieldid', 
+        'id_vuz__id_district_id', 
+        'id_vuz__id_region_id'
+    ).distinct()
+
+    for item in valid_combinations:
+        f_id = str(item['fieldid'])
+        d_id = str(item['id_vuz__id_district_id'])
+        r_id = str(item['id_vuz__id_region_id'])
+        
+        if f_id not in connections:
+            connections[f_id] = {'districts': set(), 'regions': set()}
+        
+        connections[f_id]['districts'].add(d_id)
+        connections[f_id]['regions'].add(r_id)
+
+    # Преобразуем set в list для JSON
+    for f_id in connections:
+        connections[f_id]['districts'] = list(connections[f_id]['districts'])
+        connections[f_id]['regions'] = list(connections[f_id]['regions'])
+
+    context = {
+        'districts': districts,
+        'regions': regions,
+        'fields': fields,
+        'selected_district': district_id,
+        'selected_region': region_id,
+        'selected_field': field_id,
+        'yearly_stats': yearly_stats,
+        'overall_stats': overall_stats,
+        'connections_json': json.dumps(connections),
+    }
+    
+    return render(request, "vuz/analitic_price.html", context)

@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Статистика по округам</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            overflow-y: hidden;
+        }
+
+        .header {
+            position: relative;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background-color: #212529;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0 20px;
+            z-index: 1000;
+            text-align: center;
+            line-height: 60px;
+            font-size: 1.4em;
+            font-weight: bold;
+        }
+
+        .custom-select-container {
+            max-width: 400px;
+            max-height: 200px;
+        }
+
+        .container-fluid {
+            height: 100vh;
+            padding: 0px;
+            padding-bottom: 100px;
+            overflow-y: scroll;
+            overflow-x: hidden;
+        }
+
+        #year_to::-webkit-slider-runnable-track {
+            background: transparent;
+        }
+        #year_to::-moz-range-track {
+            background: transparent;
+        }
+
+        /* Стили для того, чтобы ручки (thumb) всегда были доступны для клика */
+        .form-range {
+            pointer-events: none;
+        }
+        .form-range::-webkit-slider-thumb {
+            pointer-events: auto;
+        }
+        .form-range::-moz-range-thumb {
+            pointer-events: auto;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="header">
+        Анализ стоимости платных образовательных услуг по округам
+    </div>
+
+    <!-- Кнопка меню -->
+    <div style="position: fixed; top: 10px; right: 10px; z-index: 9999; display: flex; gap: 10px;">
+    
+        <!-- Кнопка меню -->
+        <div class="btn-group dropstart">
+            <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                Меню
+            </button>
+            <ul class="dropdown-menu" style="overflow-y: hidden;">
+                <!-- <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#filterModal">Фильтр</a></li> -->
+                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#analyticsModal">Аналитика</a></li>
+                <li><a class="dropdown-item" href="#" onclick="window.location.href='/vuz/'">Главная</a></li>
+            </ul>
+        </div>
+    </div>
+
+    
+
+    <!-- Модальное окно для Аналитики -->
+    <div class="modal fade" id="analyticsModal" tabindex="-1" aria-labelledby="analyticsModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="analyticsModalLabel">Аналитика</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="d-grid gap-2">
+                        <button type="button" class="btn btn-primary" onclick="window.location.href='/vuz/2025/analitic/district/'">
+                            Аналитика по округам
+                        </button>
+                        <button type="button" class="btn btn-primary" onclick="window.location.href='/vuz/2025/analitic/prog/'">
+                            Аналитика по программе обучения
+                        </button>
+                        <button type="button" class="btn btn-primary" onclick="window.location.href='/vuz/analitic/price/'">
+                            Аналитика по росту цен
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container-fluid" style="box-shadow: 15px 15px 50px grey">
+        <h2 style="margin: 5px 10px; width: 80%; font-size: 1.4em;">Параметры анализа</h2>
+        <form method="get" class="mb-4">
+            <div class="d-flex align-items-end gap-2">
+                <div class="custom-select-container">
+                    <select class="form-select" name="field_id" id="field_id">
+                        <option value="" {% if not request.GET.field_id %}selected{% endif %} disabled hidden>Направления подготовки</option>
+                        <option value="">Все программы</option>
+                        {% for field in fields %}
+                            <option value="{{ field.fieldid }}" {% if request.GET.field_id == field.fieldid %}selected{% endif %}>
+                                {{ field.fieldid }} {{ field.fieldname }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="custom-select-container">
+                    <div class="custom-select-container">
+                        <select class="form-select" name="district_id" id="district_id">
+                            <option value="" {% if not request.GET.district_id %}selected{% endif %} disabled hidden>Округ</option>
+                            <option value="">Все округи</option>
+                            {% for district in districts %}
+                                <option value="{{ district.id_district }}" data-id="{{ district.id_district }}"
+                                    {% if request.GET.district_id == district.id_district|stringformat:"i" %}selected{% endif %}>
+                                    {{ district.district }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="custom-select-container">
+                    <select class="form-select" name="region_id" id="region_id">
+                        <option value="" {% if not request.GET.region_id %}selected{% endif %}>Все регионы</option>
+                        {% for region in regions %}
+                            <option value="{{ region.id_region }}" data-id="{{ region.id_region }}" data-district="{{ region.id_district_id }}"
+                                {% if request.GET.region_id == region.id_region|stringformat:"i" %}selected{% endif %}>
+                                {{ region.region }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="year-range-container mb-3" style="width: 250px; padding: 0 15px;">
+                    <label class="form-label">Год: <span id="year_label">2023 - 2025</span></label>
+                    <div class="range-slider" style="position: relative; height: 15px;">
+                        <!-- Ползунок "ОТ" -->
+                        <input type="range" name="year_from" id="year_from" 
+                               min="2023" max="2025" step="1"
+                               value="{{ request.GET.year_from|default:'2023' }}"  
+                               class="form-range" style="position: absolute; pointer-events: none; z-index: 2;">
+                        <!-- Ползунок "ДО" -->
+                        <input type="range" name="year_to" id="year_to" 
+                               min="2023" max="2025" step="1"
+                               value="{{ request.GET.year_to|default:'2025' }}"  
+                               class="form-range" style="position: absolute; pointer-events: none; z-index: 2;">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Показать</button>
+            </div>
+        </form>
+        <div class="table table-container table-hover">
+            <table id='progStatTable' class="table table-bordered">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Год</th>
+                        <th>Средняя цена</th>
+                        <th>Разница</th>
+                        <th>%</th>
+                    </tr>
+                </thead>
+                <tbody id="fieldTableBody">
+                    {% for item in yearly_stats %}
+                    <tr>
+                        <td>{{ item.year }}</td>
+                        <td>{{ item.price|floatformat:0  }}</td>
+                        <td>{{ item.diff_price|floatformat:0  }}</td>
+                        <td>+{{ item.diff_percent|floatformat:2  }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="11" class="text-center">Данные отсутствуют</td>
+                    </tr>
+                    {% endfor %}
+
+                    <tr class="table-info">
+                        <td><strong>Общие</strong></td>
+                        <td></td>
+                        <td>{{ overall_stats.diff|floatformat:0 }}</td>
+                        <td>+{{ overall_stats.percent|floatformat:2 }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="row mt-4" style="margin-left: 50px; margin-right: 50px;">
+            <div class="col-12">
+                <canvas id="priceAnalyticChart" style="max-height: 400px;"></canvas>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+
+<script>
+    // Ссылка на аналитику по программам
+    document.addEventListener('DOMContentLoaded', function() {
+        const select = document.getElementById('analiticProgSelect');
+        
+        select.addEventListener('change', function() {
+            const fieldId = this.value; // Получаем выбранное значение
+            if (fieldId) { // Проверяем, что выбрана не пустая опция
+                window.location.href = `/vuz/2025/analitic/prog/${fieldId}/`;
+            }
+        });
+    });
+</script>
+
+<script>
+    // 1. Получаем карту связей из Django
+    // Если поле пустое, создаем пустой объект, чтобы не было ошибок
+    const connections = JSON.parse('{{ connections_json|safe|default:"{}" }}');
+
+    const fieldSelect = document.getElementById('field_id');
+    const districtSelect = document.getElementById('district_id');
+    const regionSelect = document.getElementById('region_id');
+
+    // Функция для обновления видимости всех списков
+    function updateFilters() {
+        const selectedField = fieldSelect.value;
+        const selectedDistrict = districtSelect.value;
+
+        // Данные из нашей карты связей
+        const allowedDistricts = selectedField ? connections[selectedField]?.districts : null;
+        const allowedRegions = selectedField ? connections[selectedField]?.regions : null;
+
+        // Фильтруем ОКРУГА на основе выбранной ПРОГРАММЫ
+        districtSelect.querySelectorAll('option').forEach(opt => {
+            if (opt.value === "") return; // Пропускаем "Все округа"
+            
+            const matchesField = !selectedField || (allowedDistricts && allowedDistricts.includes(opt.value));
+            opt.style.display = matchesField ? 'block' : 'none';
+        });
+
+        // Фильтруем РЕГИОНЫ на основе ПРОГРАММЫ и ОКРУГА одновременно
+        regionSelect.querySelectorAll('option').forEach(opt => {
+            if (opt.value === "") return; // Пропускаем "Все регионы"
+            
+            const districtOfRegion = opt.getAttribute('data-district');
+            const regionId = opt.value;
+
+            const matchesField = !selectedField || (allowedRegions && allowedRegions.includes(regionId));
+            const matchesDistrict = !selectedDistrict || districtOfRegion === selectedDistrict;
+
+            // Показываем, только если регион подходит и под программу, и под округ
+            if (matchesField && matchesDistrict) {
+                opt.style.display = 'block';
+            } else {
+                opt.style.display = 'none';
+            }
+        });
+    }
+
+    // Слушатель на изменение Программы
+    fieldSelect.addEventListener('change', function() {
+        districtSelect.value = ""; // Сбрасываем географию при смене программы
+        regionSelect.value = "";
+        updateFilters();
+    });
+
+    // Слушатель на изменение Округа
+    districtSelect.addEventListener('change', function() {
+        regionSelect.value = ""; // Сбрасываем регион при смене округа
+        updateFilters();
+    });
+
+    // Вызываем один раз при загрузке, чтобы восстановить фильтры, если страница перезагружена с GET-параметрами
+    window.addEventListener('DOMContentLoaded', updateFilters);
+</script>
+
+<script>
+    const fromSlider = document.querySelector('#year_from');
+    const toSlider = document.querySelector('#year_to');
+    const yearLabel = document.querySelector('#year_label');
+
+    function updateRange() {
+        let fromValue = parseInt(fromSlider.value);
+        let toValue = parseInt(toSlider.value);
+
+        if (fromValue > toValue) {
+            // Не даем перехлестнуться
+            fromSlider.value = toValue;
+            fromValue = toValue;
+        }
+        yearLabel.textContent = `${fromValue} - ${toValue}`;
+    }
+
+    fromSlider.oninput = updateRange;
+    toSlider.oninput = updateRange;
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const from = document.getElementById('year_from').value;
+        const to = document.getElementById('year_to').value;
+        document.getElementById('year_label').textContent = `${from} - ${to}`;
+        
+        // Вызываем вашу функцию фильтрации регионов, 
+        // чтобы при загрузке скрылись те, что не подходят под выбранный округ
+        if (typeof updateFilters === "function") {
+            updateFilters();
+        }
+    });
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const table = document.getElementById("progStatTable");
+        const ctx = document.getElementById("priceAnalyticChart").getContext("2d");
+        
+        let labels = [];
+        let prices = [];
+        let percents = [];
+    
+        // Парсим данные из таблицы (пропускаем заголовок и последнюю строку "Итого")
+        for (let i = 1; i < table.rows.length - 1; i++) {
+            const row = table.rows[i];
+            const year = row.cells[0].textContent.trim();
+            const price = parseFloat(row.cells[1].textContent.replace(",", "."));
+            const percent = row.cells[3].textContent.trim();
+    
+            if (!isNaN(price)) {
+                labels.push(year);
+                prices.push(price);
+                percents.push(percent);
+            }
+        }
+    
+        // Инициализация графика
+        new Chart(ctx, {
+            type: "line", // Линейный график лучше отображает динамику по годам
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: "Средняя стоимость обучения",
+                    data: prices,
+                    borderColor: "rgba(54, 162, 235, 1)",
+                    backgroundColor: "rgba(54, 162, 235, 0.2)",
+                    borderWidth: 3,
+                    pointBackgroundColor: "rgba(54, 162, 235, 1)",
+                    pointRadius: 6,
+                    fill: true,
+                    tension: 0.3 // Сглаживание углов
+                }]
+            },
+            options: {
+                responsive: true,
+                layout: {
+                    padding: { top: 50 } // Место для верхних меток
+                },
+                scales: {
+                    x: {
+                        offset: true
+                    },
+                    y: { 
+                        beginAtZero: false,
+                        ticks: { callback: (val) => val.toLocaleString() + ' ₽' }
+                    }
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { enabled: true },
+                    datalabels: {
+                        anchor: 'end',
+                        align: 'top',
+                        offset: 5,
+                        font: { weight: 'bold', size: 12 },
+                        formatter: function(value, context) {
+                            const index = context.dataIndex;
+                            const pct = percents[index];
+                            // Если процент не "0.00" и не пустой, выводим его второй строкой
+                            if (pct && pct !== "0.00" && pct !== "0,00") {
+                                return `${value.toLocaleString()} ₽\n(${pct > 0 ? '' : ''}${pct}%)`;
+                            }
+                            return `${value.toLocaleString()} ₽`;
+                        },
+                        textAlign: 'center',
+                        clip: false
+                    }
+                }
+            },
+            plugins: [ChartDataLabels]
+        });
+    });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+</html>
