@@ -187,7 +187,7 @@
                         <td>{{ item.year }}</td>
                         <td>{{ item.price|floatformat:0  }}</td>
                         <td>{{ item.diff_price|floatformat:0  }}</td>
-                        <td>+{{ item.diff_percent|floatformat:2  }}</td>
+                        <td>{{ item.diff_percent|floatformat:2  }}</td>
                     </tr>
                     {% empty %}
                     <tr>
@@ -199,7 +199,7 @@
                         <td><strong>Общие</strong></td>
                         <td></td>
                         <td>{{ overall_stats.diff|floatformat:0 }}</td>
-                        <td>+{{ overall_stats.percent|floatformat:2 }}</td>
+                        <td>{{ overall_stats.percent|floatformat:2 }}</td>
                     </tr>
                 </tbody>
             </table>
@@ -393,7 +393,7 @@
                             const pct = percents[index];
                             // Если процент не "0.00" и не пустой, выводим его второй строкой
                             if (pct && pct !== "0.00" && pct !== "0,00") {
-                                return `${value.toLocaleString()} ₽\n(${pct > 0 ? '' : ''}${pct}%)`;
+                                return `${value.toLocaleString()} ₽\n(${pct > 0 ? '+' : ''}${pct}%)`;
                             }
                             return `${value.toLocaleString()} ₽`;
                         },

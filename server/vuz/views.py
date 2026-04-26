@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404
-from django.db.models import Min, Max, Avg, Q, IntegerField,  Value
-from django.db.models import F, Sum, BigIntegerField, DecimalField, ExpressionWrapper
+from django.db.models import Min, Max, Avg, Q, IntegerField, Subquery, Value
+from django.db.models import F, Sum, BigIntegerField, DecimalField, ExpressionWrapper, OuterRef
 from django.db.models.functions import Cast
 import json
 from .models import (
@@ -10,6 +10,7 @@ from .models import (
     Districts,
     Regions,
     Ministries,
+    Discount,
 )
 
 
@@ -82,94 +83,111 @@ def prog(request, vuz_id, year):
 from django.db.models.functions import Coalesce
 
 def vuz_profit(request, vuz_id, year):
-    # === 1. Получаем параметры сортировки ===
+    # 1. Параметры сортировки
     sort_field = request.GET.get('sort')
     order = request.GET.get('order', 'desc')
-
-    # === 2. Базовые аннотации (как было) ===
-    c1 = Coalesce(F('course1'), 0)
-    dc1 = Coalesce(F('dcont1'), 0)
-    d_val = Coalesce(F('discount__discount'), 0)
-    d_dc1 = Coalesce(F('discount__dcont1'), 0)
-
     output = DecimalField(max_digits=20, decimal_places=2)
 
-    formula_no_discount = ExpressionWrapper(c1 * dc1, output_field=output)
-    formula_with_discount = ExpressionWrapper(
-        c1 * d_dc1 * (100 - d_val) / 100, 
-        output_field=output
-    )
-    formula_lost_profit = ExpressionWrapper(
-        c1 * d_val / 100 * d_dc1, 
-        output_field=output
-    )
-
+    # 2. Базовый запрос (без джойна Discount, чтобы не было дублей)
     queryset = Main.objects.filter(
         id_vuz=vuz_id, 
         year=year, 
         course1__isnull=False
-    ).select_related("fieldid", "progid", "id_vuz", "discount")
+    ).select_related("fieldid", "progid")
 
-    # === 3. Применяем аннотации ===
+    # 3. Подзапросы для получения данных из таблицы Discount
+    # Считаем суммы отдельно для каждой записи Main (через id_main)
+    discount_qs = Discount.objects.filter(id_main=OuterRef('pk')).values('id_main')
+
     queryset = queryset.annotate(
-        sum_no_discount=formula_no_discount,
-        sum_with_discount=formula_with_discount,
-        lost_profit=formula_lost_profit,
+        # Сумма всех dcont1 в скидках
+        discount__dcont1_total=Coalesce(
+            Subquery(
+                discount_qs.annotate(total=Sum('dcont1')).values('total')
+            ), 0
+        ),
+        # Вес для потерянной прибыли: SUM(discount * dcont1)
+        _lost_weight=Coalesce(
+            Subquery(
+                discount_qs.annotate(
+                    weight=Sum(ExpressionWrapper(F('discount') * F('dcont1'), output_field=output))
+                ).values('weight')
+            ), 0, output_field=output
+        ),
+        # Вес для прибыли со скидкой: SUM((100 - discount) * dcont1)
+        _with_disc_weight=Coalesce(
+            Subquery(
+                discount_qs.annotate(
+                    weight=Sum(ExpressionWrapper((100 - F('discount')) * F('dcont1'), output_field=output))
+                ).values('weight')
+            ), 0, output_field=output
+        )
+    )
+
+    # 4. Финальные расчеты на основе аннотаций
+    queryset = queryset.annotate(
+        # Прибыль без скидки: цена * кол-во людей (из таблицы Main)
+        sum_no_discount=ExpressionWrapper(
+            F('course1') * Coalesce(F('dcont1'), 0), 
+            output_field=output
+        ),
+        # Потерянная прибыль: цена * вес_скидок / 100
+        lost_profit=ExpressionWrapper(
+            F('course1') * F('_lost_weight') / 100, 
+            output_field=output
+        ),
+        # Прибыль со скидкой: цена * вес_прибыли / 100
+        sum_with_discount=ExpressionWrapper(
+            F('course1') * F('_with_disc_weight') / 100, 
+            output_field=output
+        )
+    ).annotate(
+        # Общая прибыль: без скидок + со скидками
         total_profit=ExpressionWrapper(
             F('sum_no_discount') + F('sum_with_discount'), 
             output_field=output
         ),
-        # Для сортировки по названию программы
         fieldname=F('fieldid__fieldname')
     )
 
-    
-
-    # === 4. Сортировка ===
+    # 5. Сортировка
     valid_sort_fields = {
         'id': 'id',
         'fieldname': 'fieldname',
-        'fieldid': 'fieldid',
         'course1': 'course1',
         'dcont1': 'dcont1',
-        'discount__dcont1': 'discount__dcont1',
+        'discount__dcont1_total': 'discount__dcont1_total',
         'sum_no_discount': 'sum_no_discount',
         'sum_with_discount': 'sum_with_discount',
         'lost_profit': 'lost_profit',
         'total_profit': 'total_profit',
     }
 
-    if sort_field and sort_field in valid_sort_fields:
-        order_by_field = valid_sort_fields[sort_field]
-        if order == 'asc':
-            queryset = queryset.order_by(order_by_field)
-        else:
-            queryset = queryset.order_by(F(order_by_field).desc())
+    if sort_field in valid_sort_fields:
+        field = valid_sort_fields[sort_field]
+        queryset = queryset.order_by(field if order == 'asc' else F(field).desc())
     else:
-        # Сортировка по умолчанию
         queryset = queryset.order_by('-total_profit')
 
+    # 6. Подготовка данных для шаблона
     main_obj = queryset.values(
         'id', 'id_vuz__name', 'fieldid__fieldname', 'fieldid', 
-        'course1', 'dcont1', 
-        'discount__dcont1', 'discount__discount',
+        'course1', 'dcont1', 'discount__dcont1_total',
         'sum_no_discount', 'sum_with_discount', 'total_profit', 'lost_profit'
     )
 
-    # Итоги
-    overall_results = main_obj.aggregate(
-        total_course1=Coalesce(Sum('course1'), 0, output_field=output),
-        total_dcont1=Coalesce(Sum('dcont1'), 0, output_field=output),
-        total_discount_dcont1=Coalesce(Sum('discount__dcont1'), 0, output_field=output),
-        total_no_discount=Coalesce(Sum('sum_no_discount'), 0, output_field=output),
-        total_with_discount=Coalesce(Sum('sum_with_discount'), 0, output_field=output),
-        total_profit_all=Coalesce(Sum('total_profit'), 0, output_field=output),
-        total_lost_profit=Coalesce(Sum('lost_profit'), 0, output_field=output)
+    # 7. Итоги
+    overall_results = queryset.aggregate(
+        total_course1=Sum('course1'),
+        total_dcont1=Sum('dcont1'),
+        total_discount_dcont1=Sum('discount__dcont1_total'),
+        total_no_discount=Sum('sum_no_discount'),
+        total_with_discount=Sum('sum_with_discount'),
+        total_profit_all=Sum('total_profit'),
+        total_lost_profit=Sum('lost_profit')
     )
 
-    fields = (
-        Training.objects.all().values("fieldid", "fieldname").distinct().order_by("fieldid")
-    )
+    fields = Training.objects.all().values("fieldid", "fieldname").distinct().order_by("fieldid")
 
     return render(request, "vuz/vuz_profit.html", {
         "main_obj": main_obj,

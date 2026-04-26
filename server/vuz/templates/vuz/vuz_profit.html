@@ -125,6 +125,55 @@
         </div>
     </div>
 
+    <!-- Модальное окно с фильтрами -->
+    <div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="filterModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <!-- Оборачиваем всё содержимое в форму -->
+                <form method="get" action=""> 
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="filterModalLabel">Фильтры</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-row">
+                            <div class="mb-3">
+                                <!-- Добавлен name="level" и сохранение выбора -->
+                                <select name="level" id="educationLevelFilter" class="form-select">
+                                    <option value="">Уровень образования (Все)</option>
+                                    {% for pr in prog %}
+                                    <option value="{{ pr.progid }}" 
+                                        {% if request.GET.level == pr.progid|stringformat:"s" %}selected{% endif %}>
+                                        {{ pr.progid__progname }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <!-- Добавлен name="form" и сохранение выбора -->
+                                <select name="form" id="studyFormFilter" class="form-select">
+                                    <option value="">Форма обучения (Все)</option>
+                                    {% for form in formname %}
+                                    <option value="{{ form.formname }}"
+                                        {% if request.GET.form == form.formname %}selected{% endif %}>
+                                        {{ form.formname }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                        <!-- Кнопка сброса теперь просто ссылка на чистую страницу без параметров -->
+                        <a href="{{ request.path }}" class="btn btn-outline-danger">Сбросить</a>
+                        <!-- Кнопка Применить отправляет форму -->
+                        <button type="submit" class="btn btn-primary">Применить</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
     <!-- Модальное окно для Аналитики -->
     <div class="modal fade" id="analyticsModal" tabindex="-1" aria-labelledby="analyticsModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -203,7 +252,7 @@
                     <td>{{ item.course1 }}</td>
                     <td>{{ item.dcont1 }}</td>
                     <td>{{ item.sum_no_discount }}</td>
-                    <td>{{ item.discount__dcont1|default:0 }}</td>
+                    <td>{{ item.discount__dcont1_total|default:0 }}</td>
                     <td>{{ item.sum_with_discount}}</td>
                     <td>{{ item.lost_profit }}</td>
                     <td>{{ item.total_profit }}</td>
