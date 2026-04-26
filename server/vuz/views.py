@@ -40,7 +40,13 @@ def vuz(request):
 
 def vuz_info(request, vuz_id):
     vuz = Vuz.objects.get(pk=vuz_id)
-    context = {"vuz": vuz}
+    fields = (
+        Training.objects.all().values("fieldid", "fieldname").distinct().order_by("fieldid")
+    )
+    context = {
+        "vuz": vuz,
+        "fields": fields,
+    }
     return render(request, "vuz/vuz_info.html", context)
 
 def prog(request, vuz_id, year):
@@ -157,25 +163,37 @@ def vuz_profit(request, vuz_id, year):
         total_lost_profit=Coalesce(Sum('lost_profit'), 0, output_field=output)
     )
 
+    fields = (
+        Training.objects.all().values("fieldid", "fieldname").distinct().order_by("fieldid")
+    )
+
     return render(request, "vuz/vuz_profit.html", {
         "main_obj": main_obj,
         "overall_results": overall_results,
         "current_year": year,
         "vuz_id": vuz_id,
+        "fields": fields
     })
 
 
-def field_stat(request, field_id, year):
-    field = Training.objects.get(pk=field_id)
-    fieldid = field.fieldid
-    print(fieldid)
+def field_stat(request, year):
+    field_id = request.GET.get("field_id", '')
 
-    main_obj = Main.objects.filter(fieldid=fieldid, year=year).select_related(
+    filter_condition = {}
+
+    if field_id:
+        field = Training.objects.get(pk=field_id)
+        filter_condition['fieldid'] = field_id
+    else:
+        field = ''
+        filter_condition['fieldid'] = "99999"
+
+    main_obj = Main.objects.filter(**filter_condition, year=year).select_related(
         "progid", "id_vuz"
     ).order_by("id_vuz__name")
 
     fields = (
-        Training.objects.all().values("fieldid", "fieldname").distinct().order_by("fieldname")
+        Training.objects.all().values("fieldid", "fieldname").distinct().order_by("fieldid")
     )
 
     formname = main_obj.values("formname").distinct().order_by("-formname")
@@ -183,6 +201,7 @@ def field_stat(request, field_id, year):
     prog = main_obj.values("progid__progname").distinct().order_by("progid__progname")
     context = {
         "main_obj": main_obj,
+        "field": field,
         "fields": fields,
         "formname": formname,
         "vuzname": vuzname,
@@ -220,7 +239,7 @@ def analitic_districts_get(request, year):
     )
 
     overall_results = (
-        Main.objects.filter(**filter_condition)
+        Main.objects.filter(**filter_condition, year=year)
         .exclude(id_vuz__id_district__id_district=9999)
         .aggregate(
             overall_och_avg=Cast(Avg('course1', filter=Q(formname='очная'), default=Value(0)), IntegerField()),

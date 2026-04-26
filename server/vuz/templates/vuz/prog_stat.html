@@ -69,6 +69,11 @@
             overflow: hidden;
         }
 
+        .custom-select-container {
+            max-width: 400px;
+            max-height: 200px;
+        }
+
         .reset-filter-button {
             position: fixed;
             top: 63px;
@@ -160,14 +165,9 @@
                         <button type="button" class="btn btn-primary" onclick="window.location.href='/vuz/2025/analitic/district/'">
                             Аналитика по округам
                         </button>
-                        <div class="mb-3">
-                            <select id="analiticProgSelect" class="form-select analitic">
-                                <option value="">Аналитика по программе</option>
-                                {% for field in fields %}
-                                <option value="{{ field.fieldid }}">{{ field.fieldid }} {{ field.fieldname }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
+                        <button type="button" class="btn btn-primary" onclick="window.location.href='/vuz/2025/analitic/prog/'">
+                            Аналитика по программе обучения
+                        </button>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -223,11 +223,24 @@
 
 
     <div class="container-fluid" style="box-shadow: 15px 15px 50px grey">
-        {% if main_obj and main_obj|length > 0 %}
-            <h2 style="margin: 5px 10px; width: 80%; font-size: 1.4em;">{{ main_obj.0.fieldid.fieldname }} {{ main_obj.0.progid.progname }}</h2>
+        {% if field %}
+            <h2 style="margin: 5px 10px; width: 80%; font-size: 1.4em;">{{ field.fieldid }} {{ field.fieldname }}</h2>
         {% else %}
-            <h2 style="margin: 5px 10px; width: 80%; font-size: 1.4em;">Нет данных</h2>
+            <h2 style="margin: 5px 10px; width: 80%; font-size: 1.4em;">Выбор программы обучения</h2>
         {% endif %}
+        <form method="get" class="mb-4">
+            <div class="d-flex align-items-end gap-2">
+                <div class="custom-select-container">
+                    <select class="form-select" name="field_id" id="field_id">
+                        <option value="" selected disabled hidden>Направления подготовки</option>
+                        {% for field in fields %}
+                            <option value="{{ field.fieldid }}">{{ field.fieldid }} {{ field.fieldname }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Показать</button>
+            </div>
+        </form>
         <div class="table table-container table-hover">
         <table id='progStatTable'class="table table-bordered">
             <thead class="table-dark">

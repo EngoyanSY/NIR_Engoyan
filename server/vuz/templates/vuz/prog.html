@@ -161,14 +161,9 @@
                         <button type="button" class="btn btn-primary" onclick="window.location.href='/vuz/2025/analitic/district/'">
                             Аналитика по округам
                         </button>
-                        <div class="mb-3">
-                            <select id="analiticProgSelect" class="form-select analitic">
-                                <option value="">Аналитика по программе</option>
-                                {% for field in fields %}
-                                <option value="{{ field.fieldid }}">{{ field.fieldid }} {{ field.fieldname }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
+                        <button type="button" class="btn btn-primary" onclick="window.location.href='/vuz/2025/analitic/prog/'">
+                            Аналитика по программе обучения
+                        </button>
                     </div>
                 </div>
                 <div class="modal-footer">
