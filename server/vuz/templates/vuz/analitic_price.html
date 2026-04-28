@@ -64,7 +64,7 @@
 </head>
 <body>
     <div class="header">
-        Анализ стоимости платных образовательных услуг по округам
+        Анализ роста цены обучения по образовательной программе
     </div>
 
     <!-- Кнопка меню -->
@@ -176,12 +176,12 @@
                 <thead class="table-dark">
                     <tr>
                         <th>Год</th>
-                        <th>Средняя цена</th>
-                        <th>Разница</th>
-                        <th>%</th>
+                        <th>Средняя цена обучения на 1 курсе, ₽</th>
+                        <th>Разница цены с предыдущим годом, ₽</th>
+                        <th>Разница цены с предыдущим годом, %</th>
                     </tr>
                 </thead>
-                <tbody id="fieldTableBody">
+                <tbody id="fieldTableBody" style="text-align: right;">
                     {% for item in yearly_stats %}
                     <tr>
                         <td>{{ item.year }}</td>
@@ -196,7 +196,7 @@
                     {% endfor %}
 
                     <tr class="table-info">
-                        <td><strong>Общие</strong></td>
+                        <td><strong>Общая</strong></td>
                         <td></td>
                         <td>{{ overall_stats.diff|floatformat:0 }}</td>
                         <td>{{ overall_stats.percent|floatformat:2 }}</td>
@@ -364,7 +364,7 @@
                     pointRadius: 6,
                     fill: true,
                     tension: 0.3 // Сглаживание углов
-                }]
+                },]
             },
             options: {
                 responsive: true,
