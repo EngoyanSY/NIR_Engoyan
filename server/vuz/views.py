@@ -9,7 +9,7 @@ from .models import (
     Training,
     Districts,
     Regions,
-    Ministries,
+    Program,
     Discount,
 )
 
@@ -85,11 +85,19 @@ from django.db.models.functions import Coalesce
 def vuz_profit(request, vuz_id, year):
     # 1. Параметры сортировки
     sort_field = request.GET.get('sort')
+    filter_condition = {}
     order = request.GET.get('order', 'desc')
+    progid = request.GET.get('level')
+    formname = request.GET.get('form')
+    if progid:
+        filter_condition['progid'] = int(progid)
+    if formname:
+        filter_condition['formname'] = formname
     output = DecimalField(max_digits=20, decimal_places=2)
 
     # 2. Базовый запрос (без джойна Discount, чтобы не было дублей)
     queryset = Main.objects.filter(
+        **filter_condition,
         id_vuz=vuz_id, 
         year=year, 
         course1__isnull=False
@@ -173,7 +181,8 @@ def vuz_profit(request, vuz_id, year):
     main_obj = queryset.values(
         'id', 'id_vuz__name', 'fieldid__fieldname', 'fieldid', 
         'course1', 'dcont1', 'discount__dcont1_total',
-        'sum_no_discount', 'sum_with_discount', 'total_profit', 'lost_profit'
+        'sum_no_discount', 'sum_with_discount', 'total_profit', 'lost_profit',
+        'progid__progname', "formname"
     )
 
     # 7. Итоги
@@ -188,13 +197,16 @@ def vuz_profit(request, vuz_id, year):
     )
 
     fields = Training.objects.all().values("fieldid", "fieldname").distinct().order_by("fieldid")
-
+    formname = main_obj.values("formname").distinct().order_by("-formname")
+    prog = main_obj.values("progid", "progid__progname").distinct().order_by("progid__progname")
     return render(request, "vuz/vuz_profit.html", {
         "main_obj": main_obj,
         "overall_results": overall_results,
         "current_year": year,
         "vuz_id": vuz_id,
-        "fields": fields
+        "fields": fields,
+        "formname": formname,
+        "prog": prog
     })
 
 

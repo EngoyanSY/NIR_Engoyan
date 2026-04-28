@@ -247,7 +247,7 @@
                 {% for item in main_obj %}
                 <tr data-id="{{ item.fieldid.fieldid }}">
                     <!-- <td>{{ forloop.counter }}</td> -->
-                    <td class="program-name">{{ item.fieldid__fieldname }}</td>
+                    <td class="program-name">{{ item.fieldid__fieldname }} ({{item.progid__progname}}, {{item.formname}})</td>
                     <td class="program-code">{{ item.fieldid }}</td>
                     <td>{{ item.course1 }}</td>
                     <td>{{ item.dcont1 }}</td>
