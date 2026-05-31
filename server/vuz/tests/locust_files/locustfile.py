@@ -23,6 +23,9 @@ class WebsiteUser(HttpUser):
     @task(3)
     def analitic_page(self):
         self.client.get("/vuz/2025/analitic/district/?field_id=11.04.04", name="analitic_page")
+    @task(3)
+    def analitic_price(self):
+        self.client.get("/vuz/analitic/price/?field_id=07.04.04&district_id=1&region_id=&year_from=2023&year_to=2025", name="analitic_price")
     
     @task(3)
     def profit_sorting(self):
