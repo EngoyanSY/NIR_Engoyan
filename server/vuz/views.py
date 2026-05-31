@@ -188,13 +188,16 @@ def vuz_profit(request, vuz_id, year):
     )
 
     fields = Training.objects.all().values("fieldid", "fieldname").distinct().order_by("fieldid")
-
+    prog = main_obj.values("progid__progname").distinct().order_by("progid__progname")
+    formname = main_obj.values("formname").distinct().order_by("-formname")
     return render(request, "vuz/vuz_profit.html", {
         "main_obj": main_obj,
         "overall_results": overall_results,
         "current_year": year,
         "vuz_id": vuz_id,
-        "fields": fields
+        "fields": fields,
+        "prog": prog,
+        "formname": formname
     })
 
 
