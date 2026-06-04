@@ -24,5 +24,5 @@ EXPOSE 8000
 CMD ["sh", "-c", "python manage.py flush --noinput && \
                      python manage.py migrate && \
                      python manage.py collectstatic --noinput && \
-                     python manage.py loaddata /app/db_dump.json && \
+                    #  python manage.py loaddata /app/db_dump.json && \
                      gunicorn nir.wsgi:application --bind 0.0.0.0:8000"]
